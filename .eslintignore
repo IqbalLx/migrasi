@@ -1,12 +1,10 @@
-# Add files here to ignore them from prettier formatting
-/dist
-/coverage
+node_modules
 
 .DS_Store
 node_modules
-/build
-/.svelte-kit
-/package
+*/**/build
+*/**/.svelte-kit
+*/**/package
 .env
 .env.*
 !.env.example
