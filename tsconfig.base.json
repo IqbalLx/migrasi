@@ -11,13 +11,22 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "migrasi": ["packages/cli/src/index.ts"],
-      "migrasi-web": ["packages/web/src/index.ts"]
+      "@migrasi/services/api/auth": [
+        "packages/services/src/api/auth/src/index.ts"
+      ],
+      "@migrasi/services/api/user": [
+        "packages/services/src/api/user/src/index.ts"
+      ],
+      "@migrasi/shared/config": ["packages/shared/config/index.ts"],
+      "@migrasi/shared/database": ["packages/shared/database/index.ts"],
+      "@migrasi/shared/entities": ["packages/shared/entities/index.ts"],
+      "@migrasi/shared/errors": ["packages/shared/errors/index.ts"],
+      "@migrasi/shared/utils": ["packages/shared/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

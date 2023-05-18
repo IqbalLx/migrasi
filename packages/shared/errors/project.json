@@ -1,0 +1,26 @@
+{
+  "name": "shared-errors",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/shared/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/shared/errors",
+        "main": "packages/shared/errors/src/index.ts",
+        "tsConfig": "packages/shared/errors/tsconfig.lib.json",
+        "assets": ["packages/shared/errors/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/shared/errors/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}
