@@ -1,4 +1,4 @@
-import { User, UserRegister } from '@migrasi/shared/entities';
+import { UserRegister } from '@migrasi/shared/entities';
 import { db } from '@migrasi/shared/database';
 
 import { authService } from '.';
@@ -23,9 +23,9 @@ describe('auth domain', () => {
   });
 
   it('should success register user', async () => {
-    const token = await authService.register(user);
+    const cookie = await authService.register(user);
 
-    expect(token).toBeTruthy();
+    expect(cookie).toBeTruthy();
   });
 
   it('should failed registering user with same email', async () => {
@@ -35,14 +35,14 @@ describe('auth domain', () => {
   });
 
   it('should success login with registered user', async () => {
-    const token = await authService.login({
+    const cookie = await authService.login({
       email: user.email,
       password: user.password,
     });
 
-    expect(token).toBeTruthy();
+    expect(cookie).toBeTruthy();
 
-    generatedToken = token;
+    generatedToken = cookie.value;
   });
 
   it('should failed to login with wrong credentials', async () => {

@@ -2,7 +2,7 @@
 	"name": "web",
 	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"sourceRoot": "packages/web",
-	"projectType": "library",
+	"projectType": "application",
 	"targets": {
 		"serve": {
 			"executor": "@nx/vite:dev-server",

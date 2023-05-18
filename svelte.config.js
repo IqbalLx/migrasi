@@ -24,6 +24,9 @@ const config = {
       },
       lib: 'packages/web/src/lib',
     },
+    alias: {
+      $lib: 'packages/web/src/lib',
+    },
     outDir: '.svelte-kit',
   },
 };

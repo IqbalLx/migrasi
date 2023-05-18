@@ -9,7 +9,11 @@ import {
 
 import { toUnixInSeconds } from '@migrasi/shared/utils';
 
-import { IAuthRepository, IAuthService } from '../auth.interface';
+import {
+  GeneratedCookie,
+  IAuthRepository,
+  IAuthService,
+} from '../auth.interface';
 import { AuthValidator } from './auth.validator';
 
 import { hash } from 'bcrypt';
@@ -24,7 +28,7 @@ export class AuthService implements IAuthService {
     private authValidator: AuthValidator
   ) {}
 
-  private async generateToken(userId: string) {
+  private async generateCookie(userId: string): Promise<GeneratedCookie> {
     const now = new Date();
     const dateExpire = addDaysToDate(now, this.config.auth.expireInDay);
     const sessionPayload: NewSession = {
@@ -41,10 +45,15 @@ export class AuthService implements IAuthService {
       expiresIn: `${this.config.auth.expireInDay}d`,
     });
 
-    return token;
+    const SECONDS_IN_DAY = 24 * 60 * 60;
+    return {
+      value: token,
+      maxAgeInSeconds: this.config.auth.expireInDay * SECONDS_IN_DAY,
+      expiresAtInMilliseconds: dateExpire.getTime(),
+    };
   }
 
-  async register(userRegister: UserRegister): Promise<string> {
+  async register(userRegister: UserRegister): Promise<GeneratedCookie> {
     await this.authValidator.checkDuplicate(userRegister.email);
 
     const PASSWORD_SALT = 10;
@@ -54,10 +63,10 @@ export class AuthService implements IAuthService {
       password: hashedUserPassword,
     });
 
-    return this.generateToken(user.id);
+    return this.generateCookie(user.id);
   }
 
-  async login(userLogin: UserLogin): Promise<string> {
+  async login(userLogin: UserLogin): Promise<GeneratedCookie> {
     const user = await this.authValidator.validateByEmail(userLogin.email);
 
     await this.authValidator.validatePassword(
@@ -65,7 +74,7 @@ export class AuthService implements IAuthService {
       user.password
     );
 
-    return this.generateToken(user.id);
+    return this.generateCookie(user.id);
   }
 
   async authorize(token: string): Promise<UserToken> {

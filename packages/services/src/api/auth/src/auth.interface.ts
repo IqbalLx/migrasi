@@ -7,9 +7,15 @@ import {
   UserToken,
 } from '@migrasi/shared/entities';
 
+export type GeneratedCookie = {
+  value: string;
+  maxAgeInSeconds: number;
+  expiresAtInMilliseconds: number;
+};
+
 export interface IAuthService {
-  register(user: UserRegister): Promise<string>;
-  login(user: UserLogin): Promise<string>;
+  register(user: UserRegister): Promise<GeneratedCookie>;
+  login(user: UserLogin): Promise<GeneratedCookie>;
   authorize(token: string): Promise<UserToken>;
   logout(sessionId: string): Promise<void>;
 }
