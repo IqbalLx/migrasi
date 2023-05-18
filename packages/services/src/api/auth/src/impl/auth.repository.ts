@@ -72,27 +72,6 @@ export class AuthRepository implements IAuthRepository {
       .executeTakeFirst();
   }
 
-  async getBySession(sessionId: string): Promise<User | undefined> {
-    const user = await this.db
-      .selectFrom('sessions as s')
-      .where('s.id', '=', sessionId)
-      .leftJoin('users as u', 'u.id', 's.user_id')
-      .select([
-        'u.id',
-        'u.name',
-        'u.email',
-        'u.password',
-        'u.created_at',
-        'u.updated_at',
-        'u.deleted_at',
-      ])
-      .executeTakeFirst();
-
-    if (user === undefined || user?.id === null) return undefined;
-
-    return user as User;
-  }
-
   async deleteSession(sessionId: string): Promise<void> {
     await this.db.deleteFrom('sessions').where('id', '=', sessionId).execute();
     return;

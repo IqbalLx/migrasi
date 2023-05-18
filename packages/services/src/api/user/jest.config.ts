@@ -1,7 +1,7 @@
 /* eslint-disable */
 export default {
   displayName: 'services-src-api-user',
-  preset: '../../../../../jest.preset.js',
+  preset: '../../../../../jest.preset.cjs',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },

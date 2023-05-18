@@ -27,6 +27,9 @@ dependencies:
     version: 3.21.4
 
 devDependencies:
+  '@faker-js/faker':
+    specifier: ^8.0.1
+    version: 8.0.1
   '@nx/esbuild':
     specifier: 16.2.1
     version: 16.2.1(esbuild@0.17.19)(nx@16.1.4)(typescript@5.0.4)
@@ -1665,6 +1668,11 @@ packages:
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /@faker-js/faker@8.0.1:
+    resolution: {integrity: sha512-kbh5MenpTN9U0B4QcOI1NoTPlZHniSYQ3BHbhAnPjJGAmmFqxoxTE4sGdpy7ZOO9038DPGCuhXyMkjOr05uVwA==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0, npm: '>=6.14.13'}
     dev: true
 
   /@humanwhocodes/config-array@0.9.5:

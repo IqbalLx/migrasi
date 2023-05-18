@@ -27,7 +27,6 @@ export interface IAuthRepository {
   checkSessionExists(sessionId: string): Promise<boolean>;
   getByEmail(email: string): Promise<User | undefined>;
   getById(id: string): Promise<User | undefined>;
-  getBySession(sessionId: string): Promise<User | undefined>;
   deleteSession(sessionId: string): Promise<void>;
   deleteSessionByUser(userId: string): Promise<void>;
 }
