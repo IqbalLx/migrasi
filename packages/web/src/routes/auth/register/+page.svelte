@@ -20,14 +20,10 @@
     }
 </script>
 
-<pre>
-    {JSON.stringify(form, null, 2)}
-</pre>
-
 <div class="min-h-screen py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 px-6 py-4 bg-white shadow-md rounded-lg login-box">
         <div>
-            <h2 class="text-center text-3xl font-extrabold text-gray-900">Migrasi</h2>
+            <h2 class="text-center text-3xl font-extrabold text-gray-900"><a href="/">Migrasi</a></h2>
         </div>
         <form action="?/register" method="POST">
             <div class="mt-8">
@@ -35,7 +31,7 @@
             </div>
 
             <div class="mt-4 relative">
-                <FormField type={"name"} name={"email"} label={"Email"} placeholder={"Enter your registered email"} />
+                <FormField type={"name"} name={"email"} label={"Email"} placeholder={"Enter your valid email"} />
             </div>
 
             <div class="mt-4 relative">
