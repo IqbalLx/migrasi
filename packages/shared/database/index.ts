@@ -5,6 +5,8 @@ import { Config } from '@migrasi/shared/config';
 
 export * from './tables.interface';
 
+Config.database.validate();
+
 export const db = new Kysely<Tables>({
   dialect: new PostgresDialect({
     pool: new Pool({

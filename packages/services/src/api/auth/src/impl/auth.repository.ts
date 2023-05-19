@@ -7,6 +7,7 @@ import {
   User,
   NewSession,
   Session,
+  Context,
 } from '@migrasi/shared/entities';
 
 export class AuthRepository implements IAuthRepository {
@@ -43,17 +44,13 @@ export class AuthRepository implements IAuthRepository {
     return Number(user?.count) > 0;
   }
 
-  async checkSessionExists(sessionId: string): Promise<boolean> {
-    const session = await this.db
+  getSession(sessionId: string): Promise<Context | undefined> {
+    return this.db
       .selectFrom('sessions')
       .where('id', '=', sessionId)
       .where('expired_at', '>', sql`NOW()`)
-      .select(sql<string>`coalesce(count(id), 0)`.as('count'))
+      .select(['sessions.id', 'sessions.user_id'])
       .executeTakeFirst();
-
-    console.debug({ session });
-
-    return Number(session?.count) > 0;
   }
 
   getByEmail(email: string): Promise<User | undefined> {

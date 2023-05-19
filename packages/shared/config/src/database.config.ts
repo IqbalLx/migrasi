@@ -1,13 +1,26 @@
-import { readenv } from '@migrasi/shared/utils';
+import { ConfigKey, readenv } from '@migrasi/shared/utils';
+import { BaseConfig } from './base.config';
 
-export class DatabaseConfig {
-  static get provider() {
-    return readenv('DATABASE_PROVIDER', 'postgres');
+export class DatabaseConfig extends BaseConfig {
+  constructor(
+    keys: ConfigKey = {
+      connectionString: {
+        envKey: 'DATABASE_CONN_STRING',
+      },
+      dbName: {
+        envKey: 'DATABASE_DB_NAME',
+        default: 'migrasi',
+      },
+    }
+  ) {
+    super(keys);
   }
-  static get connectionString() {
-    return readenv('DATABASE_CONN_STRING');
+
+  get connectionString() {
+    return readenv(this.keys['connectionString']);
   }
-  static get dbName() {
-    return readenv('DATABASE_DB_NAME', 'migrasi');
+
+  get dbName() {
+    return readenv(this.keys['dbName']);
   }
 }

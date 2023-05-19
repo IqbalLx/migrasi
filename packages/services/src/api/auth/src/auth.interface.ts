@@ -1,10 +1,10 @@
 import {
+  Context,
   NewSession,
   Session,
   User,
   UserLogin,
   UserRegister,
-  UserToken,
 } from '@migrasi/shared/entities';
 
 export type GeneratedCookie = {
@@ -16,7 +16,7 @@ export type GeneratedCookie = {
 export interface IAuthService {
   register(user: UserRegister): Promise<GeneratedCookie>;
   login(user: UserLogin): Promise<GeneratedCookie>;
-  authorize(token: string): Promise<UserToken>;
+  authorize(token: string): Promise<Context>;
   logout(sessionId: string): Promise<void>;
 }
 
@@ -24,7 +24,7 @@ export interface IAuthRepository {
   create(user: UserRegister): Promise<User>;
   createSession(session: NewSession): Promise<Session['id']>;
   checkExistsByEmail(email: string): Promise<boolean>;
-  checkSessionExists(sessionId: string): Promise<boolean>;
+  getSession(sessionId: string): Promise<Context | undefined>;
   getByEmail(email: string): Promise<User | undefined>;
   getById(id: string): Promise<User | undefined>;
   deleteSession(sessionId: string): Promise<void>;

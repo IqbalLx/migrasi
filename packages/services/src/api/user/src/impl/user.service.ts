@@ -1,14 +1,20 @@
-import { UserDPO, UserMapper } from '@migrasi/shared/entities';
+import { Context, UserDPO, UserMapper } from '@migrasi/shared/entities';
+import { NotFoundException } from '@migrasi/shared/errors';
 import { IUserRepository, IUserService } from '../user.interface';
 
 export class UserService implements IUserService {
   constructor(private userRepo: IUserRepository) {}
 
-  async getBySessionId(sessionId: string): Promise<UserDPO | undefined> {
-    const user = await this.userRepo.getBySessionId(sessionId);
+  getByContext(context: Context): Promise<UserDPO | undefined> {
+    return this.getById(context.user_id);
+  }
 
-    if (user === undefined) return;
+  async getById(userId: string): Promise<UserDPO | undefined> {
+    const user = await this.userRepo.getById(userId);
 
-    return UserMapper.convertToDPO(user);
+    if (user === undefined)
+      throw new NotFoundException({ message: 'user not found' });
+
+    return UserMapper.convertToDPO(user, true);
   }
 }

@@ -22,6 +22,9 @@
       "@migrasi/services/api/user": [
         "packages/services/src/api/user/src/index.ts"
       ],
+      "@migrasi/services/src/api/project": [
+        "packages/services/src/api/project/src/index.ts"
+      ],
       "@migrasi/shared/config": ["packages/shared/config/index.ts"],
       "@migrasi/shared/database": ["packages/shared/database/index.ts"],
       "@migrasi/shared/entities": ["packages/shared/entities/index.ts"],

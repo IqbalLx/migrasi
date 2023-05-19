@@ -1,6 +1,7 @@
 import { Config } from '@migrasi/shared/config';
 
 import {
+  Context,
   NewSession,
   UserLogin,
   UserRegister,
@@ -23,14 +24,14 @@ import { addDaysToDate } from '@migrasi/shared/utils';
 
 export class AuthService implements IAuthService {
   constructor(
-    private config: Config,
+    private config: Config['auth'],
     private authRepo: IAuthRepository,
     private authValidator: AuthValidator
   ) {}
 
   private async generateCookie(userId: string): Promise<GeneratedCookie> {
     const now = new Date();
-    const dateExpire = addDaysToDate(now, this.config.auth.expireInDay);
+    const dateExpire = addDaysToDate(now, this.config.expireInDay);
     const sessionPayload: NewSession = {
       user_id: userId,
       expired_at: toUnixInSeconds(dateExpire),
@@ -40,15 +41,15 @@ export class AuthService implements IAuthService {
     const sessionId = await this.authRepo.createSession(sessionPayload);
 
     const tokenPayload: UserToken = { id: sessionId };
-    const token = sign(tokenPayload, this.config.auth.secret, {
+    const token = sign(tokenPayload, this.config.secret, {
       issuer: 'migrasi',
-      expiresIn: `${this.config.auth.expireInDay}d`,
+      expiresIn: `${this.config.expireInDay}d`,
     });
 
     const SECONDS_IN_DAY = 24 * 60 * 60;
     return {
       value: token,
-      maxAgeInSeconds: this.config.auth.expireInDay * SECONDS_IN_DAY,
+      maxAgeInSeconds: this.config.expireInDay * SECONDS_IN_DAY,
       expiresAtInMilliseconds: dateExpire.getTime(),
     };
   }
@@ -77,15 +78,15 @@ export class AuthService implements IAuthService {
     return this.generateCookie(user.id);
   }
 
-  async authorize(token: string): Promise<UserToken> {
+  async authorize(token: string): Promise<Context> {
     const sessionId = this.authValidator.validateToken(
       token,
-      this.config.auth.secret
+      this.config.secret
     );
 
-    await this.authValidator.validateSession(sessionId);
+    const context = await this.authValidator.validateSession(sessionId);
 
-    return { id: sessionId };
+    return context;
   }
 
   logout(sessionId: string): Promise<void> {

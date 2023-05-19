@@ -5,6 +5,7 @@ import { authService } from '@migrasi/services/api/auth';
 import { userService } from '.';
 import { UserRegister } from '@migrasi/shared/entities';
 import { db } from '@migrasi/shared/database';
+import { NotFoundException } from '@migrasi/shared/errors';
 
 describe('user domain', () => {
   const user: UserRegister = {
@@ -25,9 +26,9 @@ describe('user domain', () => {
     await db.deleteFrom('users').where('email', '=', user.email).execute();
   });
 
-  it('should return correct user based on token only', async () => {
-    const sessionId = (decode(token) as { id: string }).id;
-    const userFromSession = await userService.getBySessionId(sessionId);
+  it('should return correct user based on context only', async () => {
+    const context = await authService.authorize(token);
+    const userFromSession = await userService.getByContext(context);
 
     expect(userFromSession).toBeDefined();
 
@@ -36,11 +37,12 @@ describe('user domain', () => {
     expect(userFromSession?.email).toEqual(user.email);
   });
 
-  it('should not return user based on random token', async () => {
-    const userFromSession = await userService.getBySessionId(
-      faker.string.uuid()
-    );
-
-    expect(userFromSession).toBeUndefined();
+  it('should failed to return user based on random context', async () => {
+    expect(
+      userService.getByContext({
+        id: faker.string.uuid(),
+        user_id: faker.string.uuid(),
+      })
+    ).rejects.toThrow(new NotFoundException({ message: 'user not found' }));
   });
 });

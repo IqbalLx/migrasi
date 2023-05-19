@@ -1,4 +1,4 @@
-import { User, UserToken } from '@migrasi/shared/entities';
+import { Context, User, UserToken } from '@migrasi/shared/entities';
 
 import {
   ForbiddenException,
@@ -57,10 +57,12 @@ export class AuthValidator {
     }
   }
 
-  async validateSession(sessionId: string): Promise<void> {
-    const isSessionExists = await this.authRepo.checkSessionExists(sessionId);
+  async validateSession(sessionId: string): Promise<Context> {
+    const context = await this.authRepo.getSession(sessionId);
 
-    if (!isSessionExists)
+    if (context === undefined)
       throw new UnauthorizedException({ message: 'auth failed' });
+
+    return context;
   }
 }

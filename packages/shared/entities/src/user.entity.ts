@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { KyselyTableDefault, TableDefault, mapTableDefault } from './common';
+import {
+  KyselyTableDefault,
+  TableDefault,
+  WithoutDefaultTimestamp,
+  mapTableDefault,
+} from './common';
 
 const UserEntity = z.object({
   name: z.string().min(2, 'minimum 2 characters'),
@@ -24,11 +29,14 @@ export type UserDPO = z.infer<typeof UserDPO>;
 export type UserTable = KyselyTableDefault & z.infer<typeof UserEntity>;
 
 export class UserMapper {
-  static convertToDPO(user: User): UserDPO {
+  static convertToDPO<
+    C extends true | false,
+    R = C extends true ? UserDPO : WithoutDefaultTimestamp<UserDPO>
+  >(user: User, includeTimestamp: C): R {
     return {
       name: user.name,
       email: user.email,
-      ...mapTableDefault(user),
+      ...mapTableDefault(user, includeTimestamp),
     };
   }
 }

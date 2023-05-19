@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "nx serve"
+    "start": "nx serve",
+    "migrate": "nx build migrator && pnpm env-cmd -f .env.local node dist/packages/migrator/main.js"
   },
   "private": true,
   "type": "module",

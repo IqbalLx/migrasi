@@ -1,9 +1,23 @@
-export function readenv(key: string, defaultValue?: string): string {
-  const value = process.env[key];
+export type ConfigKey = {
+  [key: string]: { envKey: string; default?: string };
+};
+
+export function readenv(configKey: ConfigKey[string]): string {
+  const value = process.env[configKey.envKey];
 
   if (value !== undefined) return value;
 
-  if (defaultValue !== undefined) return defaultValue;
+  if (configKey.default !== undefined) return configKey.default;
 
-  throw Error(`key ${key} not present in environments`);
+  throw Error(`key ${configKey.envKey} not present in environments`);
+}
+
+export function validateenv(configKey: ConfigKey[string]): void {
+  const value = process.env[configKey.envKey];
+
+  if (value !== undefined) return;
+
+  if (configKey.default !== undefined) return;
+
+  throw Error(`key ${configKey.envKey} not present in environments`);
 }

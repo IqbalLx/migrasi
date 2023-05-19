@@ -55,9 +55,9 @@ describe('auth domain', () => {
   });
 
   it('should success authorizing valid token', async () => {
-    const sessionId = await authService.authorize(generatedToken);
+    const session = await authService.authorize(generatedToken);
 
-    expect(sessionId.id).toBeTruthy();
+    expect(session.id).toBeTruthy();
   });
 
   it('should failed authorizing tampered token', () => {

@@ -1,9 +1,10 @@
-import { User, UserDPO } from '@migrasi/shared/entities';
+import { Context, User, UserDPO } from '@migrasi/shared/entities';
 
 export interface IUserService {
-  getBySessionId(sessionId: string): Promise<UserDPO | undefined>;
+  getByContext(context: Context): Promise<UserDPO | undefined>;
+  getById(userId: string): Promise<UserDPO | undefined>;
 }
 
 export interface IUserRepository {
-  getBySessionId(sessionId: string): Promise<User | undefined>;
+  getById(userId: string): Promise<User | undefined>;
 }

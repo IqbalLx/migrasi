@@ -18,14 +18,35 @@ export const TableDefault = z.object({
 });
 
 export type TableDefault = z.infer<typeof TableDefault>;
+export type WithoutDefaultTimestamp<T extends TableDefault> = Omit<
+  T,
+  'created_at' | 'updated_at' | 'deleted_at'
+>;
 
-export function mapTableDefault<T extends TableDefault>(data: T): TableDefault {
+export function omitTimestamp<T extends typeof TableDefault>(schema: T) {
+  return schema.omit({
+    created_at: true,
+    updated_at: true,
+    deleted_at: true,
+  });
+}
+
+export function mapTableDefault<
+  T extends TableDefault,
+  C extends true | false,
+  R = C extends true ? WithoutDefaultTimestamp<T> : T
+>(data: T, includeTimestamp: C): R {
+  if (!includeTimestamp)
+    return {
+      id: data.id,
+    } as R;
+
   return {
     id: data.id,
     created_at: data.created_at,
     updated_at: data.updated_at,
     deleted_at: data.deleted_at,
-  };
+  } as R;
 }
 
 export type KyselyTableDefault = {
@@ -34,3 +55,27 @@ export type KyselyTableDefault = {
   updated_at: ColumnType<number, number | undefined, number>;
   deleted_at: ColumnType<number | null, number | undefined, number>;
 };
+
+export const PaginationMeta = z.object({
+  total: z.object({
+    pages: z.number(),
+    rows: z.number(),
+  }),
+  current: z.object({
+    page: z.number(),
+    rows: z.number(),
+  }),
+});
+
+export type PaginationMeta = z.infer<typeof PaginationMeta>;
+export type WithPagination<T> = { data: T[] } & PaginationMeta;
+
+export function wrapInPagination<T extends z.ZodObject<z.ZodRawShape>>(
+  schema: T
+) {
+  return PaginationMeta.merge(
+    z.object({
+      data: z.array(schema),
+    })
+  );
+}
