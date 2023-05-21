@@ -7,13 +7,17 @@ export * from './tables.interface';
 
 Config.database.validate();
 
-export const db = new Kysely<Tables>({
-  dialect: new PostgresDialect({
-    pool: new Pool({
-      connectionString: Config.database.connectionString,
-      database: Config.database.dbName,
+export function getDB(): Kysely<Tables> {
+  return new Kysely<Tables>({
+    dialect: new PostgresDialect({
+      pool: new Pool({
+        connectionString: Config.database.connectionString,
+        database: Config.database.dbName,
+      }),
     }),
-  }),
-});
+  });
+}
+
+export const db = getDB();
 
 export * from './utils/pagination.util';

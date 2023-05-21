@@ -20,6 +20,8 @@ describe('auth domain', () => {
 
   afterAll(async () => {
     await db.deleteFrom('users').where('email', '=', user.email).execute();
+
+    await db.destroy();
   });
 
   it('should success register user', async () => {

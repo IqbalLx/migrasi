@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { decode } from 'jsonwebtoken';
 
 import { authService } from '@migrasi/services/api/auth';
 import { userService } from '.';
@@ -19,11 +18,20 @@ describe('user domain', () => {
   beforeAll(async () => {
     const cookie = await authService.register(user);
 
+    // manually validating email for authorization
+    await db
+      .updateTable('users')
+      .set({ email_confirmed: true })
+      .where('email', '=', user.email)
+      .execute();
+
     token = cookie.value;
   });
 
   afterAll(async () => {
     await db.deleteFrom('users').where('email', '=', user.email).execute();
+
+    await db.destroy();
   });
 
   it('should return correct user based on context only', async () => {

@@ -27,7 +27,13 @@
 			}
 		},
 		"lint": {},
-		"test": {}
+		"test": {
+			"executor": "@nx/vite:test",
+			"defaultConfiguration": "development",
+			"options": {
+				"buildTarget": "web:build"
+			}
+		}
 	},
 	"tags": []
 }

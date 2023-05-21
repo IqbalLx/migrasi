@@ -28,7 +28,7 @@ export class ProjectService implements IProjectService {
 
   // Project
   private generateSlug(name: string): string {
-    const lastFragmentUUID = randomUUID.toString().split('-')[-1];
+    const lastFragmentUUID = randomUUID().split('-').splice(-1)[0];
     return `${name
       .toLocaleLowerCase()
       .split(' ')
@@ -87,7 +87,11 @@ export class ProjectService implements IProjectService {
   }
 
   async deleteProject(context: Context, projectId: string): Promise<void> {
-    await this.projectValidator.validateProject(context.user_id, projectId);
+    await this.projectValidator.validateProject(
+      context.user_id,
+      projectId,
+      true
+    );
 
     return this.projectRepo.deleteProject(projectId);
   }

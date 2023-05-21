@@ -11,13 +11,30 @@ import {
   User,
   WithoutTableDefault,
 } from '@migrasi/shared/entities';
+import { isUUID } from '@migrasi/shared/utils';
 
 export class ProjectRepository implements IProjectRepository {
   constructor(private db: Kysely<Tables>) {}
 
   // Project
   async createProject(newProject: WithoutTableDefault<Project>): Promise<void> {
-    await this.db.insertInto('projects').values(newProject).execute();
+    await this.db.transaction().execute(async (trx) => {
+      const createdProject = await trx
+        .insertInto('projects')
+        .values(newProject)
+        .returning('id')
+        .executeTakeFirstOrThrow();
+
+      await trx
+        .insertInto('project_members')
+        .values({
+          member_id: newProject.author_id,
+          project_id: createdProject.id,
+        })
+        .execute();
+
+      return;
+    });
 
     return;
   }
@@ -25,11 +42,12 @@ export class ProjectRepository implements IProjectRepository {
   async getProject(
     projectIdOrSlug: string
   ): Promise<[project: Project, author: User] | undefined> {
+    const isuuid = isUUID(projectIdOrSlug);
     const query = this.db
       .selectFrom('projects as p')
       .innerJoin('users as u', 'u.id', 'p.author_id')
-      .where('p.id', '=', projectIdOrSlug)
-      .orWhere('p.slug', '=', projectIdOrSlug);
+      .$if(isuuid, (qb) => qb.where('p.id', '=', projectIdOrSlug))
+      .$if(!isuuid, (qb) => qb.where('p.slug', '=', projectIdOrSlug));
 
     const [project, author] = await Promise.all([
       query.selectAll('p').executeTakeFirst(),
@@ -48,37 +66,34 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   // Project Members
-  searchMembersToAdd(
+  async searchMembersToAdd(
     projectId: string,
     memberEmailOrName: string,
     limit = 10
   ): Promise<Array<User & { is_already_member: boolean }>> {
-    return this.db
-      .selectFrom('users as u')
-      .leftJoinLateral(
-        (eb) =>
-          eb
-            .selectFrom('project_members as pm')
-            .distinctOn('pm.member_id')
-            .where('pm.project_id', '=', projectId)
-            .whereRef('pm.member_id', '=', 'u.id')
-            .select(sql<string>`1`.as('one'))
-            .as('pm'),
-        (join) => join.onTrue()
+    const query = this.db
+      .with('membership_status', (qb) =>
+        qb
+          .selectFrom('project_members as pm')
+          .where('pm.project_id', '=', projectId)
+          .select(['pm.member_id'])
       )
+      .selectFrom('users as u')
+      .leftJoin('membership_status as ms', 'ms.member_id', 'u.id')
       .where('u.email', 'ilike', `%${memberEmailOrName}%`)
       .orWhere('u.name', 'ilike', `%${memberEmailOrName}%`)
-      .selectAll(['u'])
+      .selectAll('u')
       .select(
         sql<boolean>`(
-            CASE WHEN pm.one IS NULL 
-            THEN FALSE 
-            ELSE TRUE 
+            CASE WHEN ms.member_id IS NULL 
+              THEN FALSE 
+              ELSE TRUE 
             END
         )`.as('is_already_member')
       )
-      .limit(limit)
-      .execute();
+      .limit(limit);
+
+    return query.execute();
   }
 
   async createNewProjectMember(
@@ -101,57 +116,42 @@ export class ProjectRepository implements IProjectRepository {
       .selectFrom('project_members as pm')
       .where('pm.member_id', '=', userId)
       .where('pm.project_id', '=', projectId)
-      .select(
-        sql<boolean>`(
-            CASE WHEN pm.one IS NULL 
-            THEN FALSE 
-            ELSE TRUE 
-            END
-        )`.as('is_exists')
-      )
+      .select(sql<string>`coalesce(count(id), 0)`.as('count'))
       .executeTakeFirst();
 
     if (member === undefined) return false;
 
-    return member.is_exists;
+    return Number(member.count) > 0;
   }
 
   async getAccountAndMemberStatus(
     email: string,
     projectId: string
   ): Promise<{ userId: string | null; alreadyMember: boolean }> {
-    const query = this.db
-      .selectFrom('users as u')
-      .leftJoinLateral(
-        (eb) =>
-          eb
-            .selectFrom('project_members as pm')
-            .distinctOn('pm.member_id')
-            .where('pm.project_id', '=', projectId)
-            .whereRef('pm.member_id', '=', 'u.id')
-            .select(sql<string>`1`.as('one'))
-            .as('pm'),
-        (join) => join.onTrue()
+    const user = await this.db
+      .with('membership_status', (qb) =>
+        qb
+          .selectFrom('project_members as pm')
+          .where('pm.project_id', '=', projectId)
+          .select('pm.member_id')
       )
-      .where('u.email', '=', email);
-
-    const [user, status] = await Promise.all([
-      query.select('u.id').executeTakeFirst(),
-      query
-        .select(
-          sql<boolean>`(
-                  CASE WHEN pm.one IS NULL 
-                  THEN FALSE 
-                  ELSE TRUE 
-                  END
-              )`.as('is_already_member')
-        )
-        .executeTakeFirst(),
-    ]);
+      .selectFrom('users as u')
+      .leftJoin('membership_status as ms', 'ms.member_id', 'u.id')
+      .where('u.email', '=', email)
+      .select('u.id')
+      .select(
+        sql<boolean>`(
+              CASE WHEN ms.member_id IS NULL 
+                THEN FALSE 
+                ELSE TRUE 
+              END
+          )`.as('is_already_member')
+      )
+      .executeTakeFirst();
 
     return {
       userId: user?.id ?? null,
-      alreadyMember: status?.is_already_member ?? false,
+      alreadyMember: user?.is_already_member ?? false,
     };
   }
 
@@ -267,7 +267,7 @@ export class ProjectRepository implements IProjectRepository {
       .selectFrom('project_migrations as pmi')
       .innerJoin('users as u', 'pmi.created_by', 'u.id')
       .where('pmi.project_id', '=', projectId)
-      .orderBy('created_at', query.sort ?? 'desc');
+      .orderBy('pmi.sequence', query.sort ?? 'desc');
 
     if (query.filter) {
       const { search, start_date, end_date, author_id } = query.filter;
@@ -286,6 +286,7 @@ export class ProjectRepository implements IProjectRepository {
 
     return baseQuery;
   }
+
   async getMigrations(
     projectId: string,
     query: ProjectMigrationQueryOptions

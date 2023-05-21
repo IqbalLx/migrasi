@@ -4,6 +4,7 @@ import { promises as fs } from 'fs';
 import * as path from 'path';
 
 import { db } from '@migrasi/shared/database';
+import { seedProject, seedUser } from './seeds';
 
 const migrator = new Migrator({
   db,
@@ -38,7 +39,6 @@ export async function migrateToLatest() {
   }
 
   console.log('Migration completed! Exiting...');
-  await db.destroy();
 }
 
 export async function rollbackAll() {
@@ -71,7 +71,17 @@ export async function rollbackAll() {
   }
 
   console.log('Rollback completed! Exiting...');
-  await db.destroy();
+}
+
+export async function seed() {
+  await db.transaction().execute(async (trx) => {
+    await seedUser(trx);
+    await seedProject(trx);
+
+    return Promise.resolve();
+  });
+
+  return;
 }
 
 async function main() {
@@ -80,12 +90,26 @@ async function main() {
     case 'latest':
       migrateToLatest();
       break;
+
     case 'rollback':
       rollbackAll();
       break;
+
+    case 'refresh':
+      await rollbackAll();
+      await migrateToLatest();
+      await seed();
+      break;
+
+    case 'seed':
+      seed();
+      break;
+
     default:
       console.log('Not yet implemented');
   }
+
+  await db.destroy();
 }
 
 main();

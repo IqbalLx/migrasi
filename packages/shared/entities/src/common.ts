@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Generated, ColumnType } from 'kysely';
+import { toUnixInSeconds } from '@migrasi/shared/utils';
 
 export const HTTPError = z.object({
   code: z.number(),
@@ -49,9 +50,12 @@ export function mapTableDefault<
 
   return {
     id: data.id,
-    created_at: data.created_at,
-    updated_at: data.updated_at,
-    deleted_at: data.deleted_at,
+    created_at: toUnixInSeconds(new Date(data.created_at)),
+    updated_at: toUnixInSeconds(new Date(data.updated_at)),
+    deleted_at:
+      data.deleted_at !== null
+        ? toUnixInSeconds(new Date(data.deleted_at))
+        : null,
   } as R;
 }
 
