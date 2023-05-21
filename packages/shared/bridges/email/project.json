@@ -1,0 +1,26 @@
+{
+  "name": "shared-bridges-email",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/shared/bridges/email",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/shared/bridges/email",
+        "main": "packages/shared/bridges/email/index.ts",
+        "tsConfig": "packages/shared/bridges/email/tsconfig.lib.json",
+        "assets": ["packages/shared/bridges/email/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/shared/bridges/email/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,6 +1,9 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@types/nodemailer-smtp-transport':
+    specifier: ^2.7.5
+    version: 2.7.5
   axios:
     specifier: ^1.0.0
     version: 1.4.0
@@ -19,9 +22,15 @@ dependencies:
   kysely:
     specifier: ^0.23.5
     version: 0.23.5
+  nodemailer:
+    specifier: ^6.9.2
+    version: 6.9.2
   pg:
     specifier: ^8.11.0
     version: 8.11.0
+  tseep:
+    specifier: ^1.0.6
+    version: 1.0.6(typescript@5.0.4)
   zod:
     specifier: ^3.21.4
     version: 3.21.4
@@ -75,6 +84,9 @@ devDependencies:
   '@types/node':
     specifier: ^20.2.0
     version: 20.2.0
+  '@types/nodemailer':
+    specifier: ^6.4.8
+    version: 6.4.8
   '@types/pg':
     specifier: ^8.6.6
     version: 8.6.6
@@ -2921,6 +2933,12 @@ packages:
   /@tsconfig/node16@1.0.4:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
+  /@types/aws-sdk2-types@0.0.0:
+    resolution: {integrity: sha512-GnEDlad7O4gu140g8Y0r5clvav/uoSOksxToXANj0UmqMfVcS2hIcJ6RryWvBrwXXPyyPa7xTW9otdiDSkH0DQ==}
+    dependencies:
+      '@types/node': 20.2.0
+    dev: false
+
   /@types/babel__core@7.20.0:
     resolution: {integrity: sha512-+n8dL/9GWblDO0iU6eZAwEIJVr5DWigtle+Q6HLOrh/pdbXOhOtqzq8VPPE2zvNJzSKY4vH/z3iT3tn0A3ypiQ==}
     dependencies:
@@ -3028,8 +3046,47 @@ packages:
       '@types/node': 20.2.0
     dev: true
 
+  /@types/node@12.20.55:
+    resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
+    dev: false
+
   /@types/node@20.2.0:
     resolution: {integrity: sha512-3iD2jaCCziTx04uudpJKwe39QxXgSUnpxXSvRQjRvHPxFQfmfP4NXIm/NURVeNlTCc+ru4WqjYGTmpXrW9uMlw==}
+
+  /@types/nodemailer-direct-transport@1.0.32:
+    resolution: {integrity: sha512-1S0E405ghuApKUSH3x1dJpu/4Y8cQP4kQZ6BSLsfrM5uJB+IKKJuxCUVCDJoe3OTydPtzAoKFGggseXY97jlDw==}
+    dependencies:
+      '@types/nodemailer': 3.1.11
+    dev: false
+
+  /@types/nodemailer-ses-transport@1.5.3:
+    resolution: {integrity: sha512-GZIItR7UtcXYgqQ4BO9/UVEe9uOeRt6u4YgTNVcjzowTuQCAHuueCMfXHjgYr9IiewDI87JE4xM/pNU38ip0zQ==}
+    dependencies:
+      '@types/aws-sdk2-types': 0.0.0
+      '@types/nodemailer': 3.1.11
+    dev: false
+
+  /@types/nodemailer-smtp-transport@2.7.5:
+    resolution: {integrity: sha512-TziFYmQgyO9QuKvD3j7GcC6rnbp/Js9CEROm5h3u50AAeD8d8LcwoOlhosaEeMyPmy7fVXN63ZC1/MtjvzQViQ==}
+    dependencies:
+      '@types/node': 20.2.0
+      '@types/nodemailer': 3.1.11
+    dev: false
+
+  /@types/nodemailer@3.1.11:
+    resolution: {integrity: sha512-d9juwXW8pkT+GnwCUgpRv+E3i4sigwuASNUEKQYNryI6jd+yPs33MaG5MfZnsDtJItxINmcih01FzFfSYnpfeg==}
+    dependencies:
+      '@types/node': 20.2.0
+      '@types/nodemailer-direct-transport': 1.0.32
+      '@types/nodemailer-ses-transport': 1.5.3
+      '@types/nodemailer-smtp-transport': 2.7.5
+    dev: false
+
+  /@types/nodemailer@6.4.8:
+    resolution: {integrity: sha512-oVsJSCkqViCn8/pEu2hfjwVO+Gb3e+eTWjg3PcjeFKRItfKpKwHphQqbYmPQrlMk+op7pNNWPbsJIEthpFN/OQ==}
+    dependencies:
+      '@types/node': 20.2.0
+    dev: true
 
   /@types/parse-json@4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
@@ -5877,6 +5934,11 @@ packages:
   /node-releases@2.0.10:
     resolution: {integrity: sha512-5GFldHPXVG/YZmFzJvKK2zDSzPKhEp0+ZR5SVaoSag9fsL5YgHbUHDfnG5494ISANDcK4KwPXAx2xqVEydmd7w==}
 
+  /nodemailer@6.9.2:
+    resolution: {integrity: sha512-4+TYaa/e1nIxQfyw/WzNPYTEZ5OvHIDEnmjs4LPmIfccPQN+2CYKmGHjWixn/chzD3bmUTu5FMfpltizMxqzdg==}
+    engines: {node: '>=6.0.0'}
+    dev: false
+
   /nopt@5.0.0:
     resolution: {integrity: sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==}
     engines: {node: '>=6'}
@@ -7229,6 +7291,14 @@ packages:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
+  /tsargs@1.4.1(typescript@5.0.4):
+    resolution: {integrity: sha512-YaqVGNOcYoo1yF/nA7EQf68h+P4AsfixYe6n9C3zbYF7iJqKPd19HMykALwA81jQjhRPq/iIfuu43Gupi9/mOA==}
+    peerDependencies:
+      typescript: ^3.1.6
+    dependencies:
+      typescript: 5.0.4
+    dev: false
+
   /tsconfck@2.1.1(typescript@5.0.4):
     resolution: {integrity: sha512-ZPCkJBKASZBmBUNqGHmRhdhM8pJYDdOXp4nRgj/O0JwUwsMq50lCDRQP/M5GBNAA0elPrq4gAeu4dkaVCuKWww==}
     engines: {node: ^14.13.1 || ^16 || >=18}
@@ -7250,6 +7320,15 @@ packages:
       minimist: 1.2.8
       strip-bom: 3.0.0
     dev: true
+
+  /tseep@1.0.6(typescript@5.0.4):
+    resolution: {integrity: sha512-5t98fmfFyY3chYe/fg6z1t1XkfNvvvH9w7mt0j0t4WhxHt7SCOx69roRmPWQALq4AwzbDPhP5QMEY8i8OuR40g==}
+    dependencies:
+      '@types/node': 12.20.55
+      tsargs: 1.4.1(typescript@5.0.4)
+    transitivePeerDependencies:
+      - typescript
+    dev: false
 
   /tslib@1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}

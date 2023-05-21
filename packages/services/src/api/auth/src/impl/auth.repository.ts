@@ -61,6 +61,18 @@ export class AuthRepository implements IAuthRepository {
       .executeTakeFirst();
   }
 
+  async getUserEmailConfirmationStatus(userId: string): Promise<boolean> {
+    const user = await this.db
+      .selectFrom('users')
+      .where('id', '=', userId)
+      .select('email_confirmed')
+      .executeTakeFirst();
+
+    if (user === undefined) return false;
+
+    return user.email_confirmed;
+  }
+
   getById(id: string): Promise<User | undefined> {
     return this.db
       .selectFrom('users')
@@ -79,5 +91,18 @@ export class AuthRepository implements IAuthRepository {
       .deleteFrom('sessions')
       .where('user_id', '=', userId)
       .execute();
+  }
+
+  async updateEmailConfirmationStatus(
+    id: string,
+    status: boolean
+  ): Promise<void> {
+    await this.db
+      .updateTable('users')
+      .set({ email_confirmed: status })
+      .where('id', '=', id)
+      .execute();
+
+    return;
   }
 }

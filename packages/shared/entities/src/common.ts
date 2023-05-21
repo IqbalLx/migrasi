@@ -3,8 +3,10 @@ import { Generated, ColumnType } from 'kysely';
 
 export const HTTPError = z.object({
   code: z.number(),
+  internal_code: z.string().optional(),
   reason: z.string(), // reason phrase from http status code
   message: z.string(), // message of why this error occured
+  internal_message: z.string().optional(),
   error: z.array(z.string()).nullable(), // nullable stack trace
 });
 
@@ -22,8 +24,12 @@ export type WithoutDefaultTimestamp<T extends TableDefault> = Omit<
   T,
   'created_at' | 'updated_at' | 'deleted_at'
 >;
+export type WithoutTableDefault<T extends TableDefault> = Omit<
+  T,
+  'id' | 'created_at' | 'updated_at' | 'deleted_at'
+>;
 
-export function omitTimestamp<T extends typeof TableDefault>(schema: T) {
+export function omitTimestamp<T extends z.ZodRawShape>(schema: z.ZodObject<T>) {
   return schema.omit({
     created_at: true,
     updated_at: true,
@@ -56,6 +62,10 @@ export type KyselyTableDefault = {
   deleted_at: ColumnType<number | null, number | undefined, number>;
 };
 
+export const PaginationQuery = z.object({
+  page: z.number().int().min(1).default(1).optional(),
+  size: z.number().int().default(20).optional(),
+});
 export const PaginationMeta = z.object({
   total: z.object({
     pages: z.number(),
@@ -69,6 +79,7 @@ export const PaginationMeta = z.object({
 
 export type PaginationMeta = z.infer<typeof PaginationMeta>;
 export type WithPagination<T> = { data: T[] } & PaginationMeta;
+export type PaginationQuery = z.infer<typeof PaginationQuery>;
 
 export function wrapInPagination<T extends z.ZodObject<z.ZodRawShape>>(
   schema: T

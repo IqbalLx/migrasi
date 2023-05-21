@@ -20,7 +20,7 @@ const ProjectEntity = z.object({
 });
 
 export const Project = ProjectEntity.merge(TableDefault);
-export const NewProject = ProjectEntity.omit({ slug: true });
+export const NewProject = ProjectEntity.pick({ name: true });
 export const UpdatedProject = ProjectEntity.pick({ name: true }).partial();
 export const ProjectDPO = Project.omit({ author_id: true, slug: true }).merge(
   z.object({
@@ -43,7 +43,7 @@ export class ProjectMapper {
     project: Project,
     author: User,
     totalMembers: number,
-    top5Members: User[],
+    top5Members: { user: User; contributions: number }[],
     migrations: { projectMigration: ProjectMigration; author: User }[]
   ): ProjectDPO {
     return {
@@ -52,7 +52,7 @@ export class ProjectMapper {
       author: UserMapper.convertToDPO(author, false),
       total_members: totalMembers,
       top_5_members: top5Members.map((member) =>
-        ProjectMemberMapper.convertToDPO(member)
+        ProjectMemberMapper.convertToDPO(member.user, member.contributions)
       ),
       migrations: migrations.map((migration) =>
         ProjectMigrationMapper.convertToDPO(

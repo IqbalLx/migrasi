@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   KyselyTableDefault,
   PaginationMeta,
+  PaginationQuery,
   TableDefault,
   mapTableDefault,
   omitTimestamp,
@@ -35,8 +36,7 @@ export const PaginatedProjectMigrationDPO =
 
 export const ProjectMigrationQueryOptions = z
   .object({
-    page: z.number().int().min(1).default(1),
-    size: z.number().int().default(20),
+    sort: z.enum(['asc', 'desc']),
     filter: z.object({
       search: z.string().min(3),
       start_date: z.number(),
@@ -44,6 +44,7 @@ export const ProjectMigrationQueryOptions = z
       author_id: z.string(),
     }),
   })
+  .merge(PaginationQuery)
   .deepPartial();
 
 export type ProjectMigration = z.infer<typeof ProjectMigration>;
@@ -75,14 +76,14 @@ export class ProjectMigrationMapper {
   static convertToPaginatedDPO(
     datas: {
       projectMigration: ProjectMigration;
-      user: User;
+      author: User;
     }[],
     paginationMeta: PaginationMeta
   ): PaginatedProjectMigrationDPO {
     return {
       ...paginationMeta,
       data: datas.map((data) =>
-        this.convertToDPO(data.projectMigration, data.user)
+        this.convertToDPO(data.projectMigration, data.author)
       ),
     };
   }

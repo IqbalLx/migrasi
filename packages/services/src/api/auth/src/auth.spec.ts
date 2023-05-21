@@ -26,6 +26,8 @@ describe('auth domain', () => {
     const cookie = await authService.register(user);
 
     expect(cookie).toBeTruthy();
+
+    generatedToken = cookie.value;
   });
 
   it('should failed registering user with same email', async () => {
@@ -34,7 +36,30 @@ describe('auth domain', () => {
     );
   });
 
-  it('should success login with registered user', async () => {
+  it('should failed authorizing token without confirming email', () => {
+    expect(authService.authorize(generatedToken)).rejects.toThrowError(
+      new UnauthorizedException({ message: 'confirm your email first' })
+    );
+  });
+
+  it('should failed login without confirming email', async () => {
+    expect(
+      authService.login({
+        email: user.email,
+        password: user.password,
+      })
+    ).rejects.toThrow(
+      new ForbiddenException({ message: 'confirm your email first' })
+    );
+
+    await db
+      .updateTable('users')
+      .set({ email_confirmed: true })
+      .where('email', '=', user.email)
+      .execute();
+  });
+
+  it('should success login with registered user after email confirmed', async () => {
     const cookie = await authService.login({
       email: user.email,
       password: user.password,

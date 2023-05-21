@@ -1,0 +1,26 @@
+{
+  "name": "shared-third-parties-email",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/third-parties/email",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/third-parties/email",
+        "main": "packages/third-parties/email/index.ts",
+        "tsConfig": "packages/third-parties/email/tsconfig.lib.json",
+        "assets": ["packages/third-parties/email/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/third-parties/email/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

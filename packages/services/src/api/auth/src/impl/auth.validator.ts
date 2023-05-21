@@ -21,6 +21,9 @@ export class AuthValidator {
     if (user === undefined)
       throw new UnauthorizedException({ message: 'auth failed' });
 
+    if (!user.email_confirmed)
+      throw new ForbiddenException({ message: 'confirm your email first' });
+
     return user;
   }
 
@@ -62,6 +65,12 @@ export class AuthValidator {
 
     if (context === undefined)
       throw new UnauthorizedException({ message: 'auth failed' });
+
+    const isEmailConfirmed = await this.authRepo.getUserEmailConfirmationStatus(
+      context.user_id
+    );
+    if (!isEmailConfirmed)
+      throw new ForbiddenException({ message: 'confirm your email first' });
 
     return context;
   }

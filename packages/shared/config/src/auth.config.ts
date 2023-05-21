@@ -11,6 +11,13 @@ export class AuthConfig extends BaseConfig {
         envKey: 'AUTH_EXPIRE_IN_DAY',
         default: '30',
       },
+      emailConfirmationSecret: {
+        envKey: 'AUTH_EMAIL_CONFIRMATION_SECRET',
+      },
+      emailConfirmationExpireInDay: {
+        envKey: 'AUTH_EMAIL_CONFIRMATION_EXPIRE_IN_DAY',
+        default: '1',
+      },
     }
   ) {
     super(keys);
@@ -22,5 +29,13 @@ export class AuthConfig extends BaseConfig {
 
   get expireInDay() {
     return Number(readenv(this.keys['authExpireInDay']));
+  }
+
+  get emailConfirmationSecret() {
+    return readenv(this.keys['emailConfirmationSecret']);
+  }
+
+  get emailConfirmationExpireInDay() {
+    return Number(readenv(this.keys['emailConfirmationExpireInDay']));
   }
 }

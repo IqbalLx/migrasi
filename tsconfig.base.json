@@ -22,14 +22,19 @@
       "@migrasi/services/api/user": [
         "packages/services/src/api/user/src/index.ts"
       ],
-      "@migrasi/services/src/api/project": [
+      "@migrasi/services/api/project": [
         "packages/services/src/api/project/src/index.ts"
+      ],
+      "@migrasi/shared/bridges/email": [
+        "packages/shared/bridges/email/index.ts"
       ],
       "@migrasi/shared/config": ["packages/shared/config/index.ts"],
       "@migrasi/shared/database": ["packages/shared/database/index.ts"],
       "@migrasi/shared/entities": ["packages/shared/entities/index.ts"],
       "@migrasi/shared/errors": ["packages/shared/errors/index.ts"],
-      "@migrasi/shared/utils": ["packages/shared/utils/src/index.ts"]
+      "@migrasi/shared/utils": ["packages/shared/utils/src/index.ts"],
+
+      "@migrasi/third-parties/email": ["packages/third-parties/email/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

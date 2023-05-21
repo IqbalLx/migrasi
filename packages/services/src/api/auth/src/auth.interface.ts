@@ -17,6 +17,7 @@ export interface IAuthService {
   register(user: UserRegister): Promise<GeneratedCookie>;
   login(user: UserLogin): Promise<GeneratedCookie>;
   authorize(token: string): Promise<Context>;
+  confirmEmail(token: string): Promise<void>;
   logout(sessionId: string): Promise<void>;
 }
 
@@ -26,7 +27,9 @@ export interface IAuthRepository {
   checkExistsByEmail(email: string): Promise<boolean>;
   getSession(sessionId: string): Promise<Context | undefined>;
   getByEmail(email: string): Promise<User | undefined>;
+  getUserEmailConfirmationStatus(userId: string): Promise<boolean>;
   getById(id: string): Promise<User | undefined>;
+  updateEmailConfirmationStatus(id: string, status: boolean): Promise<void>;
   deleteSession(sessionId: string): Promise<void>;
   deleteSessionByUser(userId: string): Promise<void>;
 }

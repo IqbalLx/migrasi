@@ -3,11 +3,13 @@ import { ReasonPhrases, StatusCodes, getReasonPhrase } from 'http-status-codes';
 
 type HTTPErrorInput = {
   code: StatusCodes;
+  internal_code?: string;
   reason?: ReasonPhrases;
   message?: string;
+  internal_message?: string;
   error?: Error;
 };
-type ChildHTTPErrorInput = Partial<HTTPErrorInput>;
+export type ChildHTTPErrorInput = Partial<HTTPErrorInput>;
 
 export class HTTPException extends Error {
   private error: HTTPError;
@@ -17,22 +19,28 @@ export class HTTPException extends Error {
 
     this.error = this.mapToHTTPError(
       error.code,
+      error.internal_code,
       error.reason,
       error.message,
+      error.internal_message,
       error.error
     );
   }
 
   private mapToHTTPError(
     code: StatusCodes,
+    internal_code?: string,
     reason?: ReasonPhrases,
     message?: string,
+    internal_message?: string,
     error?: Error
   ): HTTPError {
     return {
       code,
+      internal_code: internal_code,
       reason: reason ?? getReasonPhrase(code),
       message: message ?? getReasonPhrase(code),
+      internal_message: internal_message,
       error: error !== undefined ? this.parseStackTrace(error) : null,
     };
   }
