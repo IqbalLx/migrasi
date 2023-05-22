@@ -116,6 +116,13 @@ export class ProjectRepository implements IProjectRepository {
       .selectFrom('project_members as pm')
       .where('pm.member_id', '=', userId)
       .where('pm.project_id', '=', projectId)
+      .whereNotExists((qb) =>
+        qb
+          .selectFrom('projects as p')
+          .where('p.id', '=', projectId)
+          .where('p.author_id', '=', userId)
+          .select(sql<string>`1`.as('one'))
+      )
       .select(sql<string>`coalesce(count(id), 0)`.as('count'))
       .executeTakeFirst();
 
@@ -167,7 +174,8 @@ export class ProjectRepository implements IProjectRepository {
 
   private getProjectMembersBaseQuery(
     projectId: string,
-    query: ProjectMemberPaginationQuery
+    query: ProjectMemberPaginationQuery,
+    includeSort = true
   ) {
     let baseQuery = this.db
       .selectFrom('project_members as pm')
@@ -182,9 +190,7 @@ export class ProjectRepository implements IProjectRepository {
             .as('pmi'),
         (join) => join.onTrue()
       )
-      .where('pm.project_id', '=', projectId)
-      .selectAll(['u'])
-      .select('pmi.contributions as contributions');
+      .where('pm.project_id', '=', projectId);
 
     if (query.filter?.name)
       baseQuery = baseQuery.where('u.name', 'ilike', `%${query.filter.name}%`);
@@ -195,6 +201,8 @@ export class ProjectRepository implements IProjectRepository {
         `%${query.filter.email}%`
       );
 
+    if (!includeSort) return baseQuery;
+
     if (query.sort) {
       if (query.sort?.contribution)
         baseQuery = baseQuery.orderBy(
@@ -204,7 +212,7 @@ export class ProjectRepository implements IProjectRepository {
       if (query.sort?.name)
         baseQuery = baseQuery.orderBy('u.name', query.sort.name);
     } else {
-      baseQuery = baseQuery.orderBy('created_at', 'asc');
+      baseQuery = baseQuery.orderBy('pm.created_at', 'asc');
     }
 
     return baseQuery;
@@ -216,6 +224,8 @@ export class ProjectRepository implements IProjectRepository {
   ): Promise<{ user: User; contributions: number }[]> {
     const finalQuery = this.getProjectMembersBaseQuery(projectId, query);
     const users = await finalQuery
+      .selectAll(['u'])
+      .select('pmi.contributions as contributions')
       .$call((qb) => paginate(qb, { size: query.size, page: query.page }))
       .execute();
 
@@ -230,12 +240,20 @@ export class ProjectRepository implements IProjectRepository {
     projectId: string,
     query: ProjectMemberPaginationQuery
   ): Promise<[{ user: User; contributions: number }[], PaginationMeta]> {
-    const finalQuery = this.getProjectMembersBaseQuery(projectId, query);
+    const baseQuery = this.getProjectMembersBaseQuery(projectId, query);
+    const baseQueryForPagination = this.getProjectMembersBaseQuery(
+      projectId,
+      query,
+      false
+    );
+
     const [users, pagination] = await Promise.all([
-      finalQuery
+      baseQuery
+        .selectAll(['u'])
+        .select('pmi.contributions as contributions')
         .$call((qb) => paginate(qb, { size: query.size, page: query.page }))
         .execute(),
-      getPaginationMeta(finalQuery, query),
+      getPaginationMeta(baseQueryForPagination, query),
     ]);
 
     return [
