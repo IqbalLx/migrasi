@@ -262,7 +262,13 @@ export class ProjectRepository implements IProjectRepository {
 
         return { user, contributions: Number(contributions) ?? 0 };
       }),
-      pagination,
+      {
+        total: pagination.total,
+        current: {
+          page: query.page ?? 1,
+          rows: users.length,
+        },
+      },
     ];
   }
 
@@ -279,13 +285,13 @@ export class ProjectRepository implements IProjectRepository {
   // Project Migrations
   private getMigrationsBaseQuery(
     projectId: string,
-    query: ProjectMigrationQueryOptions
+    query: ProjectMigrationQueryOptions,
+    includeSort = true
   ) {
     let baseQuery = this.db
       .selectFrom('project_migrations as pmi')
       .innerJoin('users as u', 'pmi.created_by', 'u.id')
-      .where('pmi.project_id', '=', projectId)
-      .orderBy('pmi.sequence', query.sort ?? 'desc');
+      .where('pmi.project_id', '=', projectId);
 
     if (query.filter) {
       const { search, start_date, end_date, author_id } = query.filter;
@@ -295,12 +301,16 @@ export class ProjectRepository implements IProjectRepository {
 
       if (start_date !== undefined && end_date !== undefined)
         baseQuery = baseQuery
-          .where('created_at', '>=', start_date)
-          .where('created_at', '<=', end_date);
+          .where('created_at', '>=', sql`to_timestamp(${start_date})`)
+          .where('created_at', '<=', sql`to_timestamp(${end_date})`);
 
       if (author_id !== undefined)
         baseQuery = baseQuery.where('pmi.created_by', '=', author_id);
     }
+
+    if (!includeSort) return baseQuery;
+
+    baseQuery = baseQuery.orderBy('pmi.sequence', query.sort ?? 'desc');
 
     return baseQuery;
   }
@@ -332,18 +342,32 @@ export class ProjectRepository implements IProjectRepository {
       PaginationMeta
     ]
   > {
-    const finalRawQuery = this.getMigrationsBaseQuery(projectId, query);
-    const finalQuery = finalRawQuery.$call((qb) => paginate(qb, query));
+    const baseQuery = this.getMigrationsBaseQuery(projectId, query);
+    const baseQueryForPagination = this.getMigrationsBaseQuery(
+      projectId,
+      query,
+      false
+    );
 
+    const finalQuery = baseQuery.$call((qb) => paginate(qb, query));
     const [migrations, authors, pagination] = await Promise.all([
       finalQuery.selectAll('pmi').execute(),
       finalQuery.selectAll('u').execute(),
-      getPaginationMeta(finalRawQuery, query),
+      getPaginationMeta(baseQueryForPagination, query),
     ]);
 
     const datas = migrations.map((migration, index) => {
       return { author: authors[index], projectMigration: migration };
     });
-    return [datas, pagination];
+    return [
+      datas,
+      {
+        total: pagination.total,
+        current: {
+          page: query.page ?? 1,
+          rows: migrations.length,
+        },
+      },
+    ];
   }
 }

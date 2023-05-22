@@ -1,5 +1,6 @@
 import { PaginationMeta, PaginationQuery } from '@migrasi/shared/entities';
-import { SelectQueryBuilder, sql } from 'kysely';
+import { Kysely, SelectQueryBuilder, sql } from 'kysely';
+import { Tables } from '../tables.interface';
 
 const parseQuery = (query: PaginationQuery) => {
   const size = query.size ?? 10;
@@ -20,25 +21,17 @@ export function paginate<DB, TB extends keyof DB, O>(
 export async function getPaginationMeta<DB, TB extends keyof DB, O>(
   baseQuery: SelectQueryBuilder<DB, TB, O>,
   query: PaginationQuery
-): Promise<PaginationMeta> {
+): Promise<Pick<PaginationMeta, 'total'>> {
   const { size, page } = parseQuery(query);
-  const [currRow, allRow] = await Promise.all([
-    paginate(baseQuery, query)
-      .select(sql<string>`coalesce(count(*), 0)`.as('count'))
-      .executeTakeFirstOrThrow(),
-    baseQuery
-      .select(sql<string>`coalesce(count(*), 0)`.as('count'))
-      .executeTakeFirstOrThrow(),
-  ]);
+
+  const allRow = await baseQuery
+    .select(sql<string>`coalesce(count(*), 0)`.as('count'))
+    .executeTakeFirstOrThrow();
 
   return {
     total: {
       rows: Number(allRow.count),
       pages: Math.ceil(Number(allRow.count) / size),
-    },
-    current: {
-      page,
-      rows: Number(currRow.count),
     },
   };
 }
