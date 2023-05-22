@@ -34,7 +34,7 @@ describe('Project Member Domain', () => {
     ]);
 
     const newProject: NewProject = {
-      name: 'Project Jest For Test',
+      name: 'Project Member Jest Test',
     };
 
     const forTestProject = await projectService.createProject(
@@ -73,7 +73,7 @@ describe('Project Member Domain', () => {
 
     await db
       .deleteFrom('projects')
-      .where('slug', 'ilike', `project-jest-%`)
+      .where('slug', 'ilike', `project-member-jest-%`)
       .orWhere('id', '=', thisTestOnlyProjectID)
       .execute();
 
@@ -94,7 +94,7 @@ describe('Project Member Domain', () => {
   });
 
   it('should failed to search member to add when theyre not author', async () => {
-    expect(
+    await expect(
       projectService.searchMembersToAdd(contextUser7, project0ID, 'user')
     ).rejects.toThrowError(
       new ProjectNotFoundException(
@@ -121,9 +121,7 @@ describe('Project Member Domain', () => {
       .map((user) => user.user.email)
       .slice(0, 3);
 
-    console.debug({ notMemberBefore });
-
-    expect(
+    await expect(
       projectService.addMembersToProject(
         context,
         thisTestOnlyProjectID,
@@ -144,7 +142,7 @@ describe('Project Member Domain', () => {
       .map((user) => user.user.email)
       .slice(0, 3);
 
-    expect(
+    await expect(
       projectService.addMembersToProject(
         contextUser7, // and try adding member using user7 context
         thisTestOnlyProjectID,

@@ -72,7 +72,7 @@ describe('Project Domain', () => {
       name: 'Project Jest',
     };
 
-    expect(
+    await expect(
       projectService.createProject(context, newProject)
     ).resolves.not.toThrowError();
   });
@@ -122,7 +122,7 @@ describe('Project Domain', () => {
   });
 
   it('should failed get detail of project where theyre not part of', async () => {
-    expect(
+    await expect(
       projectService.getProjectDetail(contextUser5, slug)
     ).rejects.toThrowError(
       new ProjectNotFoundException(
@@ -143,7 +143,7 @@ describe('Project Domain', () => {
       .orderBy('created_at', 'desc')
       .executeTakeFirstOrThrow();
 
-    expect(
+    await expect(
       projectService.deleteProject(context, project.id)
     ).resolves.not.toThrowError();
   });
@@ -156,7 +156,7 @@ describe('Project Domain', () => {
       .orderBy('created_at', 'desc')
       .executeTakeFirstOrThrow();
 
-    expect(
+    await expect(
       projectService.deleteProject(context, project.id)
     ).rejects.toThrowError(
       new ProjectNotFoundException(

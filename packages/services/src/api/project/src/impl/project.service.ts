@@ -145,7 +145,7 @@ export class ProjectService implements IProjectService {
             priority: 'high',
           });
 
-          return Promise.resolve();
+          return;
         }
 
         return this.projectRepo.createNewProjectMember(
