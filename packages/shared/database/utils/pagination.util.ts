@@ -23,8 +23,7 @@ export async function getPaginationMeta<DB, TB extends keyof DB, O>(
 ): Promise<PaginationMeta> {
   const { size, page } = parseQuery(query);
   const [currRow, allRow] = await Promise.all([
-    baseQuery
-      .$call((qb) => paginate(qb, { size: query.size, page: query.page }))
+    paginate(baseQuery, query)
       .select(sql<string>`coalesce(count(*), 0)`.as('count'))
       .executeTakeFirstOrThrow(),
     baseQuery
