@@ -1,3 +1,29 @@
+<script lang="ts">
+  import { page } from '$app/stores';
+  import { trpc } from '../lib/trpc/utils/trpcClient.util';
+
+  let greeting = 'press the button to load data';
+  let loading = false;
+
+  const loadData = async () => {
+    loading = true;
+    greeting = await trpc($page).auth.greeting.query()
+    loading = false;
+  };
+
+</script>
+
+<h6>Loading data in<br /><code>+page.svelte</code></h6>
+
+<a
+  href="#load"
+  role="button"
+  class="secondary"
+  aria-busy={loading}
+  on:click|preventDefault={loadData}>Load</a
+>
+<p>{greeting}</p>
+
 <section class="bg-white flex justify-center items-center min-h-screen">
     <div class="max-w-7xl py-16 px-4">
       <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">

@@ -13,6 +13,7 @@ export type ChildHTTPErrorInput = Partial<HTTPErrorInput>;
 
 export class HTTPException extends Error {
   private error: HTTPError;
+  private originalError: Error | undefined;
 
   constructor(error: HTTPErrorInput) {
     super(error.message);
@@ -25,6 +26,8 @@ export class HTTPException extends Error {
       error.internal_message,
       error.error
     );
+
+    this.originalError = error.error;
   }
 
   private mapToHTTPError(
@@ -55,6 +58,10 @@ export class HTTPException extends Error {
 
   getHTTPError(): HTTPError {
     return this.error;
+  }
+
+  getOriginalError(): Error | undefined {
+    return this.originalError;
   }
 }
 
