@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "start": "nx serve",
-    "migrate": "nx build migrator && pnpm env-cmd -f .env.local node dist/packages/migrator/main.js"
+    "migrate": "nx build migrator && pnpm env-cmd -f .env.local node dist/packages/migrator/main.js",
+    "prepare": "husky install"
   },
   "private": true,
   "type": "module",
@@ -66,7 +67,8 @@
     "vite": "^4.3.4",
     "vite-plugin-eslint": "^1.8.1",
     "vite-tsconfig-paths": "^4.2.0",
-    "vitest": "^0.31.0"
+    "vitest": "^0.31.0",
+    "husky": "^8.0.0"
   },
   "volta": {
     "node": "18.16.0"
