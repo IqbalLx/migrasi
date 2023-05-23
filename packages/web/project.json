@@ -26,7 +26,13 @@
 				"buildTarget": "web:build"
 			}
 		},
-		"lint": {},
+		"lint": {
+			"executor": "@nx/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["packages/web/**/*.ts", "packages/web/**/*.svelte"]
+			}
+		},
 		"test": {
 			"executor": "@nx/vite:test",
 			"defaultConfiguration": "development",

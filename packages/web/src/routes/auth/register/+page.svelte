@@ -1,8 +1,8 @@
 <script lang="ts">
     import FormField from "$lib/components/FormField.svelte";
 
-    let password: string = '';
-    let confirmPassword: string = '';
+    let password = '';
+    let confirmPassword = '';
 
     let preventSubmit = false
     let confirmPasswordNotMatch = false
@@ -41,6 +41,7 @@
             <div class="mt-4 relative">
                 <FormField type={"password"} name={"password"} label={"Confirm Password"} placeholder={"Enter your password (again)"} isSecure={true} bind:value={confirmPassword} noSubmit={true}/>
                 {#if confirmPasswordNotMatch}
+                <!-- svelte-ignore a11y-label-has-associated-control -->
                 <label class="label">
                     <span class="label-text-alt text-red-600">Confirm password must match password</span>
                   </label>

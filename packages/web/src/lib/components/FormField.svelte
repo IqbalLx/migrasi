@@ -5,10 +5,10 @@
     export let label: string
     export let placeholder: string
 
-    export let isSecure: boolean = false
-    export let isVisible: boolean = false
+    export let isSecure = false
+    export let isVisible = false
 
-    export let value: string = ''
+    export let value = ''
     export let focused = false
     export let noSubmit = false
 
@@ -19,6 +19,7 @@
 
 <div>
     {#if !isSecure}
+        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="block font-medium text-sm text-gray-700">{label}</label>
         <input
             type={type}

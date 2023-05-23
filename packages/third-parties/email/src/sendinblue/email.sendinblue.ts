@@ -1,4 +1,4 @@
-import { MailContent } from '@migrasi/shared/bridges/email';
+import { MailContent } from '@migrasi/shared/entities';
 import { IEmailService } from '../email.interface';
 import { createTransport, type Transporter } from 'nodemailer';
 import { SmtpOptions } from 'nodemailer-smtp-transport';

@@ -33,19 +33,19 @@ describe('auth domain', () => {
   });
 
   it('should failed registering user with same email', async () => {
-    expect(authService.register(user)).rejects.toThrow(
+    await expect(authService.register(user)).rejects.toThrow(
       new ForbiddenException({ message: 'auth failed' })
     );
   });
 
-  it('should failed authorizing token without confirming email', () => {
-    expect(authService.authorize(generatedToken)).rejects.toThrowError(
+  it('should failed authorizing token without confirming email', async () => {
+    await expect(authService.authorize(generatedToken)).rejects.toThrowError(
       new UnauthorizedException({ message: 'confirm your email first' })
     );
   });
 
   it('should failed login without confirming email', async () => {
-    expect(
+    await expect(
       authService.login({
         email: user.email,
         password: user.password,
@@ -73,7 +73,7 @@ describe('auth domain', () => {
   });
 
   it('should failed to login with wrong credentials', async () => {
-    expect(
+    await expect(
       authService.login({
         email: 'iqbal@mail.com',
         password: user.password,
@@ -87,8 +87,8 @@ describe('auth domain', () => {
     expect(session.id).toBeTruthy();
   });
 
-  it('should failed authorizing tampered token', () => {
-    expect(authService.authorize(tamperedToken)).rejects.toThrowError(
+  it('should failed authorizing tampered token', async () => {
+    await expect(authService.authorize(tamperedToken)).rejects.toThrowError(
       new UnauthorizedException({ message: 'auth failed' })
     );
   });
@@ -97,7 +97,7 @@ describe('auth domain', () => {
     const sessionId = await authService.authorize(generatedToken);
     await authService.logout(sessionId.id);
 
-    expect(authService.authorize(tamperedToken)).rejects.toThrowError(
+    await expect(authService.authorize(tamperedToken)).rejects.toThrowError(
       new UnauthorizedException({ message: 'auth failed' })
     );
   });

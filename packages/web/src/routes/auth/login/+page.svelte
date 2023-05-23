@@ -38,6 +38,7 @@
             </div>
             <div class="mt-4">
                 <p class="text-center text-sm text-gray-600">Don't have an account? <a href="/auth/register" class="text-indigo-600 hover:text-indigo-500 font-medium">Register Today!</a></p>
+                <!-- svelte-ignore a11y-invalid-attribute -->
                 <p class="text-center text-sm text-gray-600 mt-1">Forgot your password? <span class="tooltip tooltip-bottom" data-tip="the service not ready yet lol"><a href="#" class="text-indigo-600 hover:text-indigo-500 font-medium">Please Remember It!</a></span></p>
             </div>
         </form>

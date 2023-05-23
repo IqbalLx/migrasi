@@ -4,3 +4,4 @@ export * from './src/common';
 export * from './src/project.entity';
 export * from './src/projectMember.entity';
 export * from './src/projectMigration.entity';
+export * from './src/email.entity';

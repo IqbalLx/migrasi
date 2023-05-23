@@ -4,8 +4,7 @@
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended",
 		"plugin:svelte/recommended",
-		"prettier",
-		"../../.eslintrc.json"
+		"prettier"
 	],
 	"parser": "@typescript-eslint/parser",
 	"plugins": ["@typescript-eslint"],

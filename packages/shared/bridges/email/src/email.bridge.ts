@@ -1,13 +1,7 @@
 import { EventEmitter } from 'tseep';
 
+import { MailContent } from '@migrasi/shared/entities';
 import { emailService } from '@migrasi/third-parties/email';
-
-export type MailContent = {
-  subject: string;
-  text?: string;
-  html?: string;
-  priority?: 'high' | 'normal' | 'low';
-};
 
 export type EmailBridge = EventEmitter<{
   send: (to: string, content: MailContent) => Promise<void>;
