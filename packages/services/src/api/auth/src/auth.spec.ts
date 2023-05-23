@@ -97,7 +97,7 @@ describe('auth domain', () => {
     const sessionId = await authService.authorize(generatedToken);
     await authService.logout(sessionId.id);
 
-    await expect(authService.authorize(tamperedToken)).rejects.toThrowError(
+    await expect(authService.authorize(generatedToken)).rejects.toThrowError(
       new UnauthorizedException({ message: 'auth failed' })
     );
   });
