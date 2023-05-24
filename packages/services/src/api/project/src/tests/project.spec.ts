@@ -1,9 +1,9 @@
 import { authService } from '@migrasi/services/api/auth';
 import { Context, NewProject, ProjectDPO } from '@migrasi/shared/entities';
 
-import { projectService } from '.';
+import { projectService } from '..';
 import { getDB } from '@migrasi/shared/database';
-import { ProjectNotFoundException } from './impl/project.error';
+import { ProjectNotFoundException } from '../impl/project.error';
 
 describe('Project Domain', () => {
   const db = getDB();

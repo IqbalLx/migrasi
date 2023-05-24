@@ -5,8 +5,8 @@ import {
   PaginatedProjectMigrationDPO,
   ProjectMigrationQueryOptions,
 } from '@migrasi/shared/entities';
-import { projectService } from '.';
-import { ProjectNotFoundException } from './impl/project.error';
+import { projectService } from '..';
+import { ProjectNotFoundException } from '../impl/project.error';
 
 describe('Project Migration Domain', () => {
   const db = getDB();

@@ -60,9 +60,8 @@ export class AuthValidator {
     }
   }
 
-  async validateSession(sessionId: string): Promise<Context> {
+  async validateSession(sessionId: string, isCli: boolean): Promise<Context> {
     const context = await this.authRepo.getSession(sessionId);
-
     if (context === undefined)
       throw new UnauthorizedException({ message: 'auth failed' });
 
@@ -71,6 +70,9 @@ export class AuthValidator {
     );
     if (!isEmailConfirmed)
       throw new ForbiddenException({ message: 'confirm your email first' });
+
+    if (context.is_cli !== isCli)
+      throw new UnauthorizedException({ message: 'auth failed' });
 
     return context;
   }

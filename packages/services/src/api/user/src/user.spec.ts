@@ -50,6 +50,7 @@ describe('user domain', () => {
       userService.getByContext({
         id: faker.string.uuid(),
         user_id: faker.string.uuid(),
+        is_cli: false,
       })
     ).rejects.toThrow(new NotFoundException({ message: 'user not found' }));
   });

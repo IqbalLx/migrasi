@@ -25,7 +25,7 @@ export class AuthRepository implements IAuthRepository {
     const createdSession = await this.db
       .insertInto('sessions')
       .values({
-        user_id: session.user_id,
+        ...session,
         expired_at: sql`to_timestamp(${session.expired_at})`,
       })
       .returning('id')
@@ -49,7 +49,7 @@ export class AuthRepository implements IAuthRepository {
       .selectFrom('sessions')
       .where('id', '=', sessionId)
       .where('expired_at', '>', sql`NOW()`)
-      .select(['sessions.id', 'sessions.user_id'])
+      .select(['sessions.id', 'sessions.user_id', 'sessions.is_cli'])
       .executeTakeFirst();
   }
 
@@ -81,15 +81,20 @@ export class AuthRepository implements IAuthRepository {
       .executeTakeFirst();
   }
 
-  async deleteSession(sessionId: string): Promise<void> {
-    await this.db.deleteFrom('sessions').where('id', '=', sessionId).execute();
+  async deleteSession(sessionId: string, isCLI: boolean): Promise<void> {
+    await this.db
+      .deleteFrom('sessions')
+      .where('id', '=', sessionId)
+      .where('is_cli', '=', isCLI)
+      .execute();
     return;
   }
 
-  async deleteSessionByUser(userId: string): Promise<void> {
+  async deleteSessionByUser(userId: string, isCLI: boolean): Promise<void> {
     await this.db
       .deleteFrom('sessions')
       .where('user_id', '=', userId)
+      .where('is_cli', '=', isCLI)
       .execute();
   }
 

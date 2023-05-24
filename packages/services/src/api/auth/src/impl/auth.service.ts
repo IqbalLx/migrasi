@@ -33,27 +33,36 @@ export class AuthService implements IAuthService {
     private emailBridge: EmailBridge
   ) {}
 
-  private async generateCookie(userId: string): Promise<GeneratedCookie> {
+  private async generateCookie(
+    userId: string,
+    isCLI = false
+  ): Promise<GeneratedCookie> {
+    const EXPIRE_IN_DAY = isCLI
+      ? this.config.cliExpireInDay
+      : this.config.expireInDay;
+    const SECRET = isCLI ? this.config.cliSecret : this.config.secret;
+    const SECONDS_IN_DAY = 24 * 60 * 60;
+
     const now = new Date();
-    const dateExpire = addDaysToDate(now, this.config.expireInDay);
+    const dateExpire = addDaysToDate(now, EXPIRE_IN_DAY);
     const sessionPayload: NewSession = {
       user_id: userId,
       expired_at: toUnixInSeconds(dateExpire),
+      is_cli: isCLI,
     };
 
-    await this.authRepo.deleteSessionByUser(userId);
+    await this.authRepo.deleteSessionByUser(userId, isCLI);
     const sessionId = await this.authRepo.createSession(sessionPayload);
 
     const tokenPayload: UserToken = { id: sessionId };
-    const token = sign(tokenPayload, this.config.secret, {
+    const token = sign(tokenPayload, SECRET, {
       issuer: 'migrasi',
       expiresIn: `${this.config.expireInDay}d`,
     });
 
-    const SECONDS_IN_DAY = 24 * 60 * 60;
     return {
       value: token,
-      maxAgeInSeconds: this.config.expireInDay * SECONDS_IN_DAY,
+      maxAgeInSeconds: EXPIRE_IN_DAY * SECONDS_IN_DAY,
       expiresAtInMilliseconds: dateExpire.getTime(),
     };
   }
@@ -110,13 +119,35 @@ export class AuthService implements IAuthService {
     return this.generateCookie(user.id);
   }
 
+  async cliLogin(userLogin: UserLogin): Promise<GeneratedCookie> {
+    const user = await this.authValidator.validateByEmail(userLogin.email);
+
+    await this.authValidator.validatePassword(
+      userLogin.password,
+      user.password
+    );
+
+    return this.generateCookie(user.id, true);
+  }
+
   async authorize(token: string): Promise<Context> {
     const sessionId = this.authValidator.validateToken(
       token,
       this.config.secret
     );
 
-    const context = await this.authValidator.validateSession(sessionId);
+    const context = await this.authValidator.validateSession(sessionId, false);
+
+    return context;
+  }
+
+  async cliAuthorize(token: string): Promise<Context> {
+    const sessionId = this.authValidator.validateToken(
+      token,
+      this.config.cliSecret
+    );
+
+    const context = await this.authValidator.validateSession(sessionId, true);
 
     return context;
   }
@@ -133,6 +164,10 @@ export class AuthService implements IAuthService {
   }
 
   logout(sessionId: string): Promise<void> {
-    return this.authRepo.deleteSession(sessionId);
+    return this.authRepo.deleteSession(sessionId, false);
+  }
+
+  cliLogout(sessionId: string): Promise<void> {
+    return this.authRepo.deleteSession(sessionId, true);
   }
 }

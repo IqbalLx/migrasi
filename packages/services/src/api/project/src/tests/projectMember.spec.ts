@@ -7,8 +7,8 @@ import {
   PaginatedProjectMemberDPO,
   ProjectMemberPaginationQuery,
 } from '@migrasi/shared/entities';
-import { projectService } from '.';
-import { ProjectNotFoundException } from './impl/project.error';
+import { projectService } from '..';
+import { ProjectNotFoundException } from '../impl/project.error';
 import { sql } from 'kysely';
 
 describe('Project Member Domain', () => {
@@ -26,7 +26,7 @@ describe('Project Member Domain', () => {
   const addedMemberIds: string[] = [];
 
   beforeAll(async () => {
-    const [cookieUser1, cookieUser5] = await Promise.all([
+    const [cookieUser1, cookieUser7] = await Promise.all([
       authService.login({
         email: 'user0@email.com',
         password: 'Password123654',
@@ -39,7 +39,7 @@ describe('Project Member Domain', () => {
 
     [context, contextUser7] = await Promise.all([
       authService.authorize(cookieUser1.value),
-      authService.authorize(cookieUser5.value),
+      authService.authorize(cookieUser7.value),
     ]);
 
     const newProject: NewProject = {

@@ -6,7 +6,7 @@ import { authService } from '@migrasi/services/api/auth';
 import { toTRPCError } from '../utils/trpc.util';
 import { HTTPException } from '@migrasi/shared/errors';
 
-const authorize = t.middleware(async (opts) => {
+const webAuthorize = t.middleware(async (opts) => {
 	const { ctx } = opts;
 	const authHeaderValue = ctx.token;
 
@@ -41,4 +41,4 @@ const authorize = t.middleware(async (opts) => {
 	}
 });
 
-export const protectedProcedure = t.procedure.use(authorize);
+export const webAuthorizedProcedure = t.procedure.use(webAuthorize);

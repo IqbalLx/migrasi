@@ -11,6 +11,13 @@ export class AuthConfig extends BaseConfig {
         envKey: 'AUTH_EXPIRE_IN_DAY',
         default: '30',
       },
+      cliAuthSecret: {
+        envKey: 'CLI_AUTH_SECRET',
+      },
+      cliAuthExpireInDay: {
+        envKey: 'CLI_AUTH_EXPIRE_IN_DAY',
+        default: '90',
+      },
       emailConfirmationSecret: {
         envKey: 'AUTH_EMAIL_CONFIRMATION_SECRET',
       },
@@ -29,6 +36,14 @@ export class AuthConfig extends BaseConfig {
 
   get expireInDay() {
     return Number(readenv(this.keys['authExpireInDay']));
+  }
+
+  get cliSecret() {
+    return readenv(this.keys['cliAuthSecret']);
+  }
+
+  get cliExpireInDay() {
+    return Number(readenv(this.keys['cliAuthExpireInDay']));
   }
 
   get emailConfirmationSecret() {
