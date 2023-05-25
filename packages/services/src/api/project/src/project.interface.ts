@@ -3,6 +3,7 @@ import {
   MemberToAddDPO,
   NewMembers,
   NewProject,
+  NewProjectMigration,
   PaginatedProjectMemberDPO,
   PaginatedProjectMigrationDPO,
   PaginationMeta,
@@ -11,6 +12,7 @@ import {
   ProjectMemberPaginationQuery,
   ProjectMigration,
   ProjectMigrationQueryOptions,
+  UpdateProjectMigrationDTO,
   User,
   WithoutTableDefault,
 } from '@migrasi/shared/entities';
@@ -47,11 +49,31 @@ export interface IProjectService {
   ): Promise<void>;
 
   // project migrations
+  createMigration(
+    context: Context,
+    projectSlugOrId: string,
+    filename: string
+  ): Promise<string>;
   getProjectMigrations(
     context: Context,
     query: ProjectMigrationQueryOptions,
     projectId: string
   ): Promise<PaginatedProjectMigrationDPO>;
+  updateMigration(
+    context: Context,
+    projectSlugOrId: string,
+    updateMigration: UpdateProjectMigrationDTO
+  ): Promise<void>;
+  toggleMigrationStatus(
+    context: Context,
+    projectSlugOrId: string,
+    filenames: string[]
+  ): Promise<void>;
+  deleteProjectMigration(
+    context: Context,
+    projectSlugOrId: string,
+    filename: string
+  ): Promise<void>;
 }
 
 export interface IProjectRepository {
@@ -86,6 +108,11 @@ export interface IProjectRepository {
   deleteMembers(projectId: string, memberIds: string[]): Promise<void>;
 
   // project migrations
+  createMigration(newMigration: NewProjectMigration): Promise<string>;
+  getMigrationByFilename(
+    projectSlugOrId: string,
+    filename: string
+  ): Promise<ProjectMigration | undefined>;
   getMigrations(
     projectId: string,
     query: ProjectMigrationQueryOptions
@@ -99,4 +126,13 @@ export interface IProjectRepository {
       PaginationMeta
     ]
   >;
+  updateMigration(
+    id: string,
+    updateValue: Partial<Pick<ProjectMigration, 'filename' | 'is_migrated'>>
+  ): Promise<void>;
+  batchUpdateMigration(
+    ids: string[],
+    updateValue: Partial<Pick<ProjectMigration, 'filename' | 'is_migrated'>>
+  ): Promise<void>;
+  deleteMigration(id: string): Promise<void>;
 }

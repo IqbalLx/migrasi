@@ -1,6 +1,10 @@
-import { Project, User } from '@migrasi/shared/entities';
+import { Project, ProjectMigration, User } from '@migrasi/shared/entities';
 import { IProjectRepository } from '../project.interface';
-import { ProjectNotFoundException } from './project.error';
+import {
+  ProjectMigrationForbiddenException,
+  ProjectMigrationNotFoundException,
+  ProjectNotFoundException,
+} from './project.error';
 
 export class ProjectValidator {
   constructor(private projectRepo: IProjectRepository) {}
@@ -54,6 +58,7 @@ export class ProjectValidator {
   validateProject(userId: string, projectSlugOrId: string, mustAuthor = false) {
     return this.validate(userId, projectSlugOrId, false, mustAuthor);
   }
+
   validateAndGetProject(
     userId: string,
     projectSlugOrId: string,
@@ -94,5 +99,84 @@ export class ProjectValidator {
     );
 
     return validDeletedMemberIds;
+  }
+
+  private async validateMigration<
+    C extends true | false,
+    R = C extends true ? ProjectMigration : undefined
+  >(
+    userId: string,
+    projectSlugOrId: string,
+    filename: string,
+    mustAuthor?: boolean,
+    isMigrated?: boolean,
+    returnMigration?: C
+  ): Promise<R> {
+    const projectMigration = await this.projectRepo.getMigrationByFilename(
+      projectSlugOrId,
+      filename
+    );
+
+    if (projectMigration === undefined)
+      throw new ProjectMigrationNotFoundException(
+        {
+          message: 'Project migration cannot be found',
+          internal_message: `migration with filename ${filename} cannot be found in project ${projectSlugOrId}`,
+        },
+        'NOTFOUND'
+      );
+
+    if (projectMigration.is_migrated !== isMigrated)
+      throw new ProjectMigrationForbiddenException({
+        message: 'Project migration already migrated',
+        internal_message: `you cannot update already migrated files. create new one to ensure your table consistency`,
+      });
+
+    if (mustAuthor && userId !== projectMigration.created_by)
+      throw new ProjectMigrationNotFoundException(
+        {
+          message: 'Project migration cannot be found',
+          internal_message: `user with id ${userId} not a author of migration with filename ${filename}`,
+        },
+        'NOTFOUND'
+      );
+
+    if (!returnMigration) return undefined as R;
+
+    return projectMigration as R;
+  }
+
+  validateProjectMigration(
+    userId: string,
+    projectId: string,
+    filename: string,
+    mustAuthor = true,
+    isMigrated = false
+  ): Promise<void> {
+    return this.validateMigration(
+      userId,
+      projectId,
+      filename,
+      mustAuthor,
+      isMigrated,
+      false
+    );
+  }
+
+  validateAndGetProjectMigration(
+    userId: string,
+    projectId: string,
+    filename: string,
+    mustAuthor = true,
+    isMigrated = false
+  ): Promise<ProjectMigration> {
+    return this.validateMigration(
+      userId,
+      projectId,
+      filename,
+      mustAuthor,
+      isMigrated,
+      true
+    );
   }
 }

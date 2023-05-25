@@ -3,6 +3,7 @@ import {
   MemberToAddDPO,
   NewMembers,
   NewProject,
+  NewProjectMigration,
   PaginatedProjectMemberDPO,
   PaginatedProjectMigrationDPO,
   Project,
@@ -12,6 +13,7 @@ import {
   ProjectMemberPaginationQuery,
   ProjectMigrationMapper,
   ProjectMigrationQueryOptions,
+  UpdateProjectMigrationDTO,
 } from '@migrasi/shared/entities';
 import { EmailBridge } from '@migrasi/shared/bridges/email';
 import { IProjectRepository, IProjectService } from '../project.interface';
@@ -194,6 +196,26 @@ export class ProjectService implements IProjectService {
   }
 
   // Project Migration
+  async createMigration(
+    context: Context,
+    projectOrSlugId: string,
+    filename: string
+  ): Promise<string> {
+    const [project] = await this.projectValidator.validateAndGetProject(
+      context.user_id,
+      projectOrSlugId,
+      false
+    );
+
+    const newMigration: NewProjectMigration = {
+      filename,
+      project_id: project.id,
+      created_by: context.id,
+    };
+
+    return this.projectRepo.createMigration(newMigration);
+  }
+
   async getProjectMigrations(
     context: Context,
     query: ProjectMigrationQueryOptions,
@@ -209,5 +231,78 @@ export class ProjectService implements IProjectService {
       await this.projectRepo.getMigrationsWithPaginationMeta(projectId, query);
 
     return ProjectMigrationMapper.convertToPaginatedDPO(datas, pagination);
+  }
+
+  async updateMigration(
+    context: Context,
+    projectSlugOrId: string,
+    updateMigration: UpdateProjectMigrationDTO
+  ): Promise<void> {
+    const [, migration] = await Promise.all([
+      this.projectValidator.validateProject(
+        context.user_id,
+        projectSlugOrId,
+        false
+      ),
+      this.projectValidator.validateAndGetProjectMigration(
+        context.user_id,
+        projectSlugOrId,
+        updateMigration.current_filename
+      ),
+    ]);
+
+    return this.projectRepo.updateMigration(migration.id, {
+      filename: updateMigration.updated_filename,
+    });
+  }
+
+  async toggleMigrationStatus(
+    context: Context,
+    projectSlugOrId: string,
+    filenames: string[]
+  ): Promise<void> {
+    const [, migrations] = await Promise.all([
+      this.projectValidator.validateProject(
+        context.user_id,
+        projectSlugOrId,
+        true
+      ),
+      Promise.all(
+        filenames.map((filename) =>
+          this.projectValidator.validateAndGetProjectMigration(
+            context.user_id,
+            projectSlugOrId,
+            filename,
+            false
+          )
+        )
+      ),
+    ]);
+
+    return this.projectRepo.batchUpdateMigration(
+      migrations.map((m) => m.id),
+      { is_migrated: true }
+    );
+  }
+
+  async deleteProjectMigration(
+    context: Context,
+    projectSlugOrId: string,
+    filename: string
+  ): Promise<void> {
+    const [, migration] = await Promise.all([
+      this.projectValidator.validateProject(
+        context.user_id,
+        projectSlugOrId,
+        false
+      ),
+      this.projectValidator.validateAndGetProjectMigration(
+        context.user_id,
+        projectSlugOrId,
+        filename
+      ),
+    ]);
+
+    return this.projectRepo.deleteMigration(migration.id);
   }
 }

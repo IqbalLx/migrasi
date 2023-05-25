@@ -11,17 +11,24 @@ import {
 import { User, UserDPO, UserMapper } from './user.entity';
 
 import { toUnixInSeconds } from '@migrasi/shared/utils';
+import { Generated } from 'kysely';
 
 const ProjectMigrationEntity = z.object({
   project_id: z.string(),
   created_by: z.string().uuid(),
   filename: z.string().min(3),
   sequence: z.number(),
+  is_migrated: z.boolean().default(false),
 });
 
 export const ProjectMigration = ProjectMigrationEntity.merge(TableDefault);
 export const NewProjectMigration = ProjectMigrationEntity.omit({
   sequence: true,
+  is_migrated: true,
+});
+export const UpdateProjectMigrationDTO = z.object({
+  current_filename: z.string(),
+  updated_filename: z.string(),
 });
 export const ProjectMigrationDPO = ProjectMigration.omit({
   project_id: true,
@@ -50,6 +57,9 @@ export const ProjectMigrationQueryOptions = z
 export type ProjectMigration = z.infer<typeof ProjectMigration>;
 export type NewProjectMigration = z.infer<typeof NewProjectMigration>;
 export type ProjectMigrationDPO = z.infer<typeof ProjectMigrationDPO>;
+export type UpdateProjectMigrationDTO = z.infer<
+  typeof UpdateProjectMigrationDTO
+>;
 export type PaginatedProjectMigrationDPO = z.infer<
   typeof PaginatedProjectMigrationDPO
 >;
@@ -58,7 +68,9 @@ export type ProjectMigrationQueryOptions = z.infer<
 >;
 
 export type ProjectMigrationTable = KyselyTableDefault &
-  z.infer<typeof ProjectMigrationEntity>;
+  z.infer<typeof ProjectMigrationEntity> & {
+    is_migrated: Generated<boolean>;
+  };
 
 export class ProjectMigrationMapper {
   static convertToDPO(
