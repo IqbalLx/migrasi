@@ -349,9 +349,12 @@ export class ProjectRepository implements IProjectRepository {
     projectId: string,
     query: ProjectMigrationQueryOptions
   ): Promise<Array<{ author: User; projectMigration: ProjectMigration }>> {
-    const finalQuery = this.getMigrationsBaseQuery(projectId, query).$call(
-      (qb) => paginate(qb, query)
-    );
+    const finalQuery = this.getMigrationsBaseQuery(
+      projectId,
+      query,
+      true,
+      true
+    ).$call((qb) => paginate(qb, query));
 
     const [migrations, authors] = await Promise.all([
       finalQuery.selectAll('pmi').execute(),

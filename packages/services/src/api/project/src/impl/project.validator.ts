@@ -138,7 +138,7 @@ export class ProjectValidator {
           message: 'Project migration cannot be found',
           internal_message: `user with id ${userId} not a author of migration with filename ${filename}`,
         },
-        'NOTFOUND'
+        'NOTAUTHOR'
       );
 
     if (!returnMigration) return undefined as R;

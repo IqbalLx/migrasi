@@ -11,6 +11,7 @@ import {
   ProjectDPO,
   ProjectMemberPaginationQuery,
   ProjectMigration,
+  ProjectMigrationDPO,
   ProjectMigrationQueryOptions,
   UpdateProjectMigrationDTO,
   User,
@@ -59,6 +60,10 @@ export interface IProjectService {
     query: ProjectMigrationQueryOptions,
     projectId: string
   ): Promise<PaginatedProjectMigrationDPO>;
+  getAllProjectMigrations(
+    context: Context,
+    projectIdOrSlug: string
+  ): Promise<ProjectMigrationDPO[]>;
   updateMigration(
     context: Context,
     projectSlugOrId: string,

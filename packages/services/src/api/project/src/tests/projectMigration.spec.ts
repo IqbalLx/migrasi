@@ -8,6 +8,7 @@ import {
 import { projectService } from '..';
 import {
   ProjectMigrationForbiddenException,
+  ProjectMigrationNotFoundException,
   ProjectNotFoundException,
 } from '../impl/project.error';
 
@@ -84,7 +85,7 @@ describe('Project Migration Domain', () => {
     await db.destroy();
   });
 
-  it('should succesfully get all migrations of a project -- no param -- as author', async () => {
+  it('should succesfully get migrations of a project -- no param -- as author', async () => {
     const projectMigrations = await projectService.getProjectMigrations(
       context,
       {},
@@ -116,7 +117,27 @@ describe('Project Migration Domain', () => {
     );
   });
 
-  it('should succesfully get all migrations of a project -- with pagination query -- as author', async () => {
+  it('should succesfully get all migrations of a project -- no param -- as author', async () => {
+    const projectMigrations = await projectService.getAllProjectMigrations(
+      context,
+      project0ID
+    );
+
+    const projectMigrationSequenceOrder = projectMigrations.map(
+      (pm) => pm.sequence
+    );
+    const projectMigrationSequenceDescOrder = [
+      ...projectMigrationSequenceOrder,
+    ].sort((a, b) => b - a);
+
+    expect(projectMigrationSequenceOrder).toEqual(
+      projectMigrationSequenceDescOrder
+    );
+
+    expect(projectMigrations.every((mi) => mi.deleted_at === null)).toBe(true);
+  });
+
+  it('should succesfully get migrations of a project -- with pagination query -- as author', async () => {
     const projectMigrationQuery: ProjectMigrationQueryOptions = {
       page: 1,
       size: 3,
@@ -140,7 +161,7 @@ describe('Project Migration Domain', () => {
     );
   });
 
-  it('should succesfully get all migrations of a project -- with sort query -- as author', async () => {
+  it('should succesfully get migrations of a project -- with sort query -- as author', async () => {
     const projectMigrationQuery: ProjectMigrationQueryOptions = {
       sort: 'asc',
     };
@@ -162,7 +183,7 @@ describe('Project Migration Domain', () => {
     );
   });
 
-  it('should succesfully get all migrations of a project -- with author filter -- as author', async () => {
+  it('should succesfully get migrations of a project -- with author filter -- as author', async () => {
     const projectMigrationQuery: ProjectMigrationQueryOptions = {
       filter: {
         author_id: contextUser1.user_id,
@@ -180,7 +201,7 @@ describe('Project Migration Domain', () => {
     expect(allAuthoredByUser1).toBe(true);
   });
 
-  it('should succesfully get all migrations of a project -- no param -- as member', async () => {
+  it('should succesfully get migrations of a project -- no param -- as member', async () => {
     const projectMigrations = await projectService.getProjectMigrations(
       contextUser3,
       {},
@@ -208,9 +229,23 @@ describe('Project Migration Domain', () => {
     );
   });
 
-  it('should failed get all migrations of a project as an outsider', async () => {
+  it('should failed get migrations of a project as an outsider', async () => {
     await expect(
       projectService.getProjectMigrations(context, {}, project1ID)
+    ).rejects.toThrowError(
+      new ProjectNotFoundException(
+        {
+          message: 'Project cannot be found',
+          internal_message: `user with id ${contextUser1} not an author of project with slug ${project1ID}`,
+        },
+        'NOTMEMBER'
+      )
+    );
+  });
+
+  it('should failed get all migrations of a project as an outsider', async () => {
+    await expect(
+      projectService.getAllProjectMigrations(context, project1ID)
     ).rejects.toThrowError(
       new ProjectNotFoundException(
         {
@@ -310,6 +345,35 @@ describe('Project Migration Domain', () => {
     expect(deletedMigration?.filename).toEqual(sampleFilename2);
   });
 
+  it('should failed delete not-migrated migration as non-author', async () => {
+    await expect(
+      projectService.deleteProjectMigration(
+        contextUser3,
+        project0ID,
+        sampleFilename2
+      )
+    ).rejects.toThrowError(
+      new ProjectMigrationNotFoundException(
+        {
+          message: 'Project migration cannot be found',
+          internal_message: `user with id ${contextUser3.user_id} not a author of migration with filename ${sampleFilename2}`,
+        },
+        'NOTAUTHOR'
+      )
+    );
+
+    const migrations = await projectService.getProjectMigrations(
+      context,
+      {},
+      project0ID
+    );
+
+    const deletedMigration = migrations.data.find(
+      (mi) => mi.deleted_at !== null
+    );
+    expect(deletedMigration?.filename).toEqual(sampleFilename2);
+  });
+
   it('should failed delete migrated migration', async () => {
     await expect(
       projectService.deleteProjectMigration(context, project0ID, sampleFilename)
@@ -319,5 +383,14 @@ describe('Project Migration Domain', () => {
         internal_message: `you cannot update already migrated files. create new one to ensure your table consistency`,
       })
     );
+  });
+
+  it('should succesfully get all migrations of a project without deleted migrations -- as author', async () => {
+    const projectMigrations = await projectService.getAllProjectMigrations(
+      context,
+      project0ID
+    );
+
+    expect(projectMigrations.every((mi) => mi.deleted_at === null)).toBe(true);
   });
 });

@@ -11,6 +11,7 @@ import {
   ProjectMapper,
   ProjectMemberMapper,
   ProjectMemberPaginationQuery,
+  ProjectMigrationDPO,
   ProjectMigrationMapper,
   ProjectMigrationQueryOptions,
   UpdateProjectMigrationDTO,
@@ -231,6 +232,29 @@ export class ProjectService implements IProjectService {
       await this.projectRepo.getMigrationsWithPaginationMeta(projectId, query);
 
     return ProjectMigrationMapper.convertToPaginatedDPO(datas, pagination);
+  }
+
+  async getAllProjectMigrations(
+    context: Context,
+    projectIdOrSlug: string
+  ): Promise<ProjectMigrationDPO[]> {
+    const [project] = await this.projectValidator.validateAndGetProject(
+      context.user_id,
+      projectIdOrSlug,
+      false
+    );
+
+    const migrations = await this.projectRepo.getMigrations(project.id, {
+      page: 1,
+      size: -1,
+    });
+
+    return migrations.map((migration) =>
+      ProjectMigrationMapper.convertToDPO(
+        migration.projectMigration,
+        migration.author
+      )
+    );
   }
 
   async updateMigration(
