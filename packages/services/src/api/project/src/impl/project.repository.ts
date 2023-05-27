@@ -1,8 +1,9 @@
-import { Kysely, sql } from 'kysely';
+import { Kysely, Transaction, sql } from 'kysely';
 import { Tables, getPaginationMeta, paginate } from '@migrasi/shared/database';
 
 import { IProjectRepository } from '../project.interface';
 import {
+  NewProjectMigration,
   PaginationMeta,
   Project,
   ProjectMemberPaginationQuery,
@@ -283,15 +284,44 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   // Project Migrations
+  createMigration(newMigration: NewProjectMigration): Promise<string> {
+    return this.db.transaction().execute(async (trx) => {
+      const migration = await trx
+        .selectFrom('project_migrations as pm')
+        .forUpdate()
+        .where('pm.project_id', '=', newMigration.project_id)
+        .orderBy('sequence', 'desc')
+        .select('sequence')
+        .executeTakeFirstOrThrow();
+
+      const newSequence = Number(migration.sequence) + 1;
+      const generatedFilename = `${newSequence}_${newMigration.filename}`;
+
+      await trx
+        .insertInto('project_migrations')
+        .values({
+          project_id: newMigration.project_id,
+          filename: newMigration.filename,
+          created_by: newMigration.created_by,
+          sequence: newSequence,
+        })
+        .execute();
+
+      return generatedFilename;
+    });
+  }
+
   private getMigrationsBaseQuery(
     projectId: string,
     query: ProjectMigrationQueryOptions,
-    includeSort = true
+    includeSort = true,
+    excludeDeleted = true
   ) {
     let baseQuery = this.db
       .selectFrom('project_migrations as pmi')
       .innerJoin('users as u', 'pmi.created_by', 'u.id')
-      .where('pmi.project_id', '=', projectId);
+      .where('pmi.project_id', '=', projectId)
+      .$if(excludeDeleted, (qb) => qb.where('pmi.deleted_at', 'is', null));
 
     if (query.filter) {
       const { search, start_date, end_date, author_id } = query.filter;
@@ -342,10 +372,17 @@ export class ProjectRepository implements IProjectRepository {
       PaginationMeta
     ]
   > {
-    const baseQuery = this.getMigrationsBaseQuery(projectId, query);
+    // use with pagination always come from Web UI, so include deleted migrations for history
+    const baseQuery = this.getMigrationsBaseQuery(
+      projectId,
+      query,
+      true,
+      false
+    );
     const baseQueryForPagination = this.getMigrationsBaseQuery(
       projectId,
       query,
+      false,
       false
     );
 
@@ -369,5 +406,85 @@ export class ProjectRepository implements IProjectRepository {
         },
       },
     ];
+  }
+
+  getMigrationByFilename(
+    projectSlugOrId: string,
+    filename: string
+  ): Promise<ProjectMigration | undefined> {
+    const isuuid = isUUID(projectSlugOrId);
+    return this.db
+      .selectFrom('project_migrations as pm')
+      .innerJoin('projects as p', 'pm.project_id', 'p.id')
+      .$if(isuuid, (qb) => qb.where('p.id', '=', projectSlugOrId))
+      .$if(!isuuid, (qb) => qb.where('p.slug', '=', projectSlugOrId))
+      .where('pm.filename', '=', filename)
+      .where('pm.deleted_at', 'is', null)
+      .selectAll(['pm'])
+      .executeTakeFirst();
+  }
+
+  async updateMigration(
+    id: string,
+    updateValue: Partial<Pick<ProjectMigration, 'filename' | 'is_migrated'>>,
+    trx?: Transaction<Tables>
+  ): Promise<void> {
+    const instance = trx ?? this.db;
+
+    await instance
+      .updateTable('project_migrations as pm')
+      .$if(updateValue.filename !== undefined, (qb) =>
+        qb.set({ filename: updateValue.filename })
+      )
+      .$if(updateValue.is_migrated !== undefined, (qb) =>
+        qb.set({ is_migrated: updateValue.is_migrated })
+      )
+      .set({
+        updated_at: sql`now()`,
+      })
+      .where('id', '=', id)
+      .execute();
+
+    return;
+  }
+
+  async batchToggleMigrationStatus(
+    projectId: string,
+    lastSequence: number
+  ): Promise<void> {
+    await this.db
+      .updateTable('project_migrations as pmi')
+      .set({ is_migrated: true })
+      .where('is_migrated', '=', false)
+      .where('pmi.sequence', '<=', lastSequence)
+      .execute();
+
+    return;
+  }
+
+  async batchUpdateMigration(
+    ids: string[],
+    updateValue: Partial<Pick<ProjectMigration, 'filename' | 'is_migrated'>>
+  ): Promise<void> {
+    await this.db
+      .transaction()
+      .execute((trx) =>
+        Promise.all(ids.map((id) => this.updateMigration(id, updateValue, trx)))
+      );
+
+    return;
+  }
+
+  async deleteMigration(id: string): Promise<void> {
+    await this.db
+      .updateTable('project_migrations')
+      .where('id', '=', id)
+      .set({
+        updated_at: sql`now()`,
+        deleted_at: sql`now()`,
+      })
+      .execute();
+
+    return;
   }
 }

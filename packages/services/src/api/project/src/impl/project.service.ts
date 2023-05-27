@@ -73,7 +73,7 @@ export class ProjectService implements IProjectService {
           contribution: 'desc',
         },
       }),
-      this.projectRepo.getMigrations(project.id, {
+      this.projectRepo.getMigrationsWithPaginationMeta(project.id, {
         page: 1,
         size: INITIAL_MIGRATIONS_LIMIT,
       }),
@@ -210,7 +210,7 @@ export class ProjectService implements IProjectService {
     const newMigration: NewProjectMigration = {
       filename,
       project_id: project.id,
-      created_by: context.id,
+      created_by: context.user_id,
     };
 
     return this.projectRepo.createMigration(newMigration);
@@ -259,29 +259,25 @@ export class ProjectService implements IProjectService {
   async toggleMigrationStatus(
     context: Context,
     projectSlugOrId: string,
-    filenames: string[]
+    lastFilename: string
   ): Promise<void> {
-    const [, migrations] = await Promise.all([
+    const [, migration] = await Promise.all([
       this.projectValidator.validateProject(
         context.user_id,
         projectSlugOrId,
         true
       ),
-      Promise.all(
-        filenames.map((filename) =>
-          this.projectValidator.validateAndGetProjectMigration(
-            context.user_id,
-            projectSlugOrId,
-            filename,
-            false
-          )
-        )
+      this.projectValidator.validateAndGetProjectMigration(
+        context.user_id,
+        projectSlugOrId,
+        lastFilename,
+        false
       ),
     ]);
 
-    return this.projectRepo.batchUpdateMigration(
-      migrations.map((m) => m.id),
-      { is_migrated: true }
+    return this.projectRepo.batchToggleMigrationStatus(
+      migration.project_id,
+      migration.sequence
     );
   }
 

@@ -87,6 +87,7 @@ export async function seedProject(trx: Transaction<Tables>) {
             .join('_')
             .toLocaleLowerCase(),
           sequence: projectMigrations.length + 1,
+          is_migrated: false,
         });
       });
     }

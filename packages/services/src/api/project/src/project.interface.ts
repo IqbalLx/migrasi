@@ -67,7 +67,7 @@ export interface IProjectService {
   toggleMigrationStatus(
     context: Context,
     projectSlugOrId: string,
-    filenames: string[]
+    lastFilename: string
   ): Promise<void>;
   deleteProjectMigration(
     context: Context,
@@ -129,6 +129,10 @@ export interface IProjectRepository {
   updateMigration(
     id: string,
     updateValue: Partial<Pick<ProjectMigration, 'filename' | 'is_migrated'>>
+  ): Promise<void>;
+  batchToggleMigrationStatus(
+    projectId: string,
+    lastSequence: number
   ): Promise<void>;
   batchUpdateMigration(
     ids: string[],

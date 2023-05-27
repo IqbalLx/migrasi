@@ -72,6 +72,8 @@ export class BadRequestException extends HTTPException {
       reason: error.reason ?? ReasonPhrases.BAD_REQUEST,
       message: error.message ?? ReasonPhrases.BAD_REQUEST,
       error: error.error,
+      internal_code: error.internal_code,
+      internal_message: error.internal_message,
     });
   }
 }
@@ -83,6 +85,8 @@ export class NotFoundException extends HTTPException {
       reason: error.reason ?? ReasonPhrases.NOT_FOUND,
       message: error.message ?? ReasonPhrases.NOT_FOUND,
       error: error.error,
+      internal_code: error.internal_code,
+      internal_message: error.internal_message,
     });
   }
 }
@@ -94,6 +98,8 @@ export class UnauthorizedException extends HTTPException {
       reason: error.reason ?? ReasonPhrases.UNAUTHORIZED,
       message: error.message ?? ReasonPhrases.UNAUTHORIZED,
       error: error.error,
+      internal_code: error.internal_code,
+      internal_message: error.internal_message,
     });
   }
 }
@@ -105,6 +111,8 @@ export class ConflictException extends HTTPException {
       reason: error.reason ?? ReasonPhrases.CONFLICT,
       message: error.message ?? ReasonPhrases.CONFLICT,
       error: error.error,
+      internal_code: error.internal_code,
+      internal_message: error.internal_message,
     });
   }
 }
@@ -116,6 +124,8 @@ export class ForbiddenException extends HTTPException {
       reason: error.reason ?? ReasonPhrases.FORBIDDEN,
       message: error.message ?? ReasonPhrases.FORBIDDEN,
       error: error.error,
+      internal_code: error.internal_code,
+      internal_message: error.internal_message,
     });
   }
 }
@@ -127,6 +137,8 @@ export class InternalServerError extends HTTPException {
       reason: error.reason ?? ReasonPhrases.INTERNAL_SERVER_ERROR,
       message: error.message ?? ReasonPhrases.INTERNAL_SERVER_ERROR,
       error: error.error,
+      internal_code: error.internal_code,
+      internal_message: error.internal_message,
     });
   }
 }

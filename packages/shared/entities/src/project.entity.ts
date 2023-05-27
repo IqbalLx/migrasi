@@ -1,14 +1,15 @@
 import { z } from 'zod';
 import {
   KyselyTableDefault,
+  PaginationMeta,
   TableDefault,
   mapTableDefault,
   omitTimestamp,
 } from './common';
 import { User, UserDPO, UserMapper } from './user.entity';
 import {
+  PaginatedProjectMigrationDPO,
   ProjectMigration,
-  ProjectMigrationDPO,
   ProjectMigrationMapper,
 } from './projectMigration.entity';
 import { ProjectMemberMapper } from './projectMember.entity';
@@ -27,7 +28,7 @@ export const ProjectDPO = Project.omit({ author_id: true, slug: true }).merge(
     author: omitTimestamp(UserDPO),
     total_members: z.number(),
     top_5_members: z.array(omitTimestamp(UserDPO)).max(5),
-    migrations: z.array(ProjectMigrationDPO).max(20),
+    migrations: PaginatedProjectMigrationDPO,
   })
 );
 
@@ -44,7 +45,13 @@ export class ProjectMapper {
     author: User,
     totalMembers: number,
     top5Members: { user: User; contributions: number }[],
-    migrations: { projectMigration: ProjectMigration; author: User }[]
+    migrations: [
+      migrations: {
+        projectMigration: ProjectMigration;
+        author: User;
+      }[],
+      paginationMeta: PaginationMeta
+    ]
   ): ProjectDPO {
     return {
       ...mapTableDefault(project, true),
@@ -54,12 +61,7 @@ export class ProjectMapper {
       top_5_members: top5Members.map((member) =>
         ProjectMemberMapper.convertToDPO(member.user, member.contributions)
       ),
-      migrations: migrations.map((migration) =>
-        ProjectMigrationMapper.convertToDPO(
-          migration.projectMigration,
-          migration.author
-        )
-      ),
+      migrations: ProjectMigrationMapper.convertToPaginatedDPO(...migrations),
     };
   }
 }

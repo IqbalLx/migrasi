@@ -6,7 +6,10 @@ import {
   ProjectMigrationQueryOptions,
 } from '@migrasi/shared/entities';
 import { projectService } from '..';
-import { ProjectNotFoundException } from '../impl/project.error';
+import {
+  ProjectMigrationForbiddenException,
+  ProjectNotFoundException,
+} from '../impl/project.error';
 
 describe('Project Migration Domain', () => {
   const db = getDB();
@@ -17,6 +20,9 @@ describe('Project Migration Domain', () => {
 
   let project0ID: string;
   let project1ID: string;
+
+  let sampleFilename: string;
+  let sampleFilename2: string;
 
   beforeAll(async () => {
     const [cookieUser0, cookieUser1, cookieUser3] = await Promise.all([
@@ -62,6 +68,19 @@ describe('Project Migration Domain', () => {
     await authService.logout(contextUser1.id);
     await authService.logout(contextUser3.id);
 
+    await db
+      .deleteFrom('project_migrations')
+      .where('project_id', '=', project0ID)
+      .where('sequence', '>', 9)
+      .execute();
+
+    // reset is_migrated status from test
+    await db
+      .updateTable('project_migrations')
+      .set({ is_migrated: false })
+      .where('project_id', '=', project0ID)
+      .execute();
+
     await db.destroy();
   });
 
@@ -90,6 +109,10 @@ describe('Project Migration Domain', () => {
 
     expect(projectMigrationSequenceOrder).toEqual(
       projectMigrationSequenceDescOrder
+    );
+
+    expect(projectMigrations.data.every((mi) => mi.deleted_at === null)).toBe(
+      true
     );
   });
 
@@ -196,6 +219,105 @@ describe('Project Migration Domain', () => {
         },
         'NOTMEMBER'
       )
+    );
+  });
+
+  it('should succesfully create new migration', async () => {
+    const originalFilename = 'create_table_user';
+    const generatedFilename = await projectService.createMigration(
+      context,
+      project0ID,
+      originalFilename
+    );
+
+    const originalFilename2 = 'create_table_order';
+    const generatedFilename2 = await projectService.createMigration(
+      context,
+      project0ID,
+      originalFilename2
+    );
+
+    expect(generatedFilename).toEqual(`10_${originalFilename}`);
+    expect(generatedFilename2).toEqual(`11_${originalFilename2}`);
+
+    sampleFilename = originalFilename;
+    sampleFilename2 = originalFilename2;
+  });
+
+  it('should succesfully update migration when it still not migrated', async () => {
+    const updatedFilename = `${sampleFilename}_updated`;
+    await expect(
+      projectService.updateMigration(context, project0ID, {
+        current_filename: sampleFilename,
+        updated_filename: updatedFilename,
+      })
+    ).resolves.not.toThrowError();
+
+    sampleFilename = updatedFilename;
+  });
+
+  it('should success toggle migration status up until last sequence', async () => {
+    await expect(
+      projectService.toggleMigrationStatus(context, project0ID, sampleFilename)
+    ).resolves.not.toThrowError();
+
+    const migrations = await projectService.getProjectMigrations(
+      context,
+      {},
+      project0ID
+    );
+
+    expect(
+      migrations.data
+        .filter((mi) => mi.sequence < 11)
+        .every((mi) => mi.is_migrated)
+    ).toBe(true);
+  });
+
+  it('should failed to update migration because its already migrated', async () => {
+    const updatedFilename = `${sampleFilename}_updated`;
+    await expect(
+      projectService.updateMigration(context, project0ID, {
+        current_filename: sampleFilename,
+        updated_filename: updatedFilename,
+      })
+    ).rejects.toThrowError(
+      new ProjectMigrationForbiddenException({
+        message: 'Project migration already migrated',
+        internal_message: `you cannot update already migrated files. create new one to ensure your table consistency`,
+      })
+    );
+  });
+
+  it('should success delete not-migrated migration', async () => {
+    await expect(
+      projectService.deleteProjectMigration(
+        context,
+        project0ID,
+        sampleFilename2
+      )
+    ).resolves.not.toThrowError();
+
+    const migrations = await projectService.getProjectMigrations(
+      context,
+      {},
+      project0ID
+    );
+
+    const deletedMigration = migrations.data.find(
+      (mi) => mi.deleted_at !== null
+    );
+    expect(deletedMigration?.filename).toEqual(sampleFilename2);
+  });
+
+  it('should failed delete migrated migration', async () => {
+    await expect(
+      projectService.deleteProjectMigration(context, project0ID, sampleFilename)
+    ).rejects.toThrowError(
+      new ProjectMigrationForbiddenException({
+        message: 'Project migration already migrated',
+        internal_message: `you cannot update already migrated files. create new one to ensure your table consistency`,
+      })
     );
   });
 });

@@ -10,7 +10,6 @@ import {
 } from './common';
 import { User, UserDPO, UserMapper } from './user.entity';
 
-import { toUnixInSeconds } from '@migrasi/shared/utils';
 import { Generated } from 'kysely';
 
 const ProjectMigrationEntity = z.object({
@@ -47,7 +46,7 @@ export const ProjectMigrationQueryOptions = z
     filter: z.object({
       search: z.string().min(3),
       start_date: z.number(),
-      end_date: z.number().lte(toUnixInSeconds(new Date())),
+      end_date: z.number(),
       author_id: z.string(),
     }),
   })
@@ -81,6 +80,7 @@ export class ProjectMigrationMapper {
       ...mapTableDefault(projectMigration, true),
       filename: projectMigration.filename,
       sequence: projectMigration.sequence,
+      is_migrated: projectMigration.is_migrated,
       created_by: UserMapper.convertToDPO(author, false),
     };
   }

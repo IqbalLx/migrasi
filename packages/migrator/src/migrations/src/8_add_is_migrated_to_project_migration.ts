@@ -10,11 +10,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
 
   await db.schema
     .alterTable(tableName)
-    .addUniqueConstraint(projectMigrationUnique, [
-      'created_by',
-      'filename',
-      'sequence',
-    ])
+    .addUniqueConstraint(projectMigrationUnique, ['project_id', 'filename'])
     .execute();
 }
 

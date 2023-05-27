@@ -104,7 +104,7 @@ export class AuthRepository implements IAuthRepository {
   ): Promise<void> {
     await this.db
       .updateTable('users')
-      .set({ email_confirmed: status })
+      .set({ email_confirmed: status, updated_at: sql`now()` })
       .where('id', '=', id)
       .execute();
 
