@@ -1,5 +1,5 @@
-import { createContext } from './lib/trpc/context.trpc';
-import { router } from './lib/trpc/routers';
+import { createContext } from '@migrasi/shared/trpc/context';
+import { router } from '@migrasi/shared/trpc/routers';
 import type { Handle } from '@sveltejs/kit';
 import { createTRPCHandle } from 'trpc-sveltekit';
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { trpc } from '../lib/trpc/utils/trpcClient.util';
+  import { trpc } from '@migrasi/shared/trpc/clients/web';
 
   let greeting = 'press the button to load data';
   let loading = false;
@@ -10,6 +10,8 @@
     greeting = await trpc($page).auth.greeting.query()
     loading = false;
   };
+
+  $: { console.log(greeting)}
 
 </script>
 

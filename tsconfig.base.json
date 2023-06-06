@@ -9,33 +9,35 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
+    "target": "ESNext",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": ["ESNext", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@migrasi/services/api/auth": [
-        "packages/services/src/api/auth/src/index.ts"
-      ],
-      "@migrasi/services/api/user": [
-        "packages/services/src/api/user/src/index.ts"
-      ],
+      "@migrasi/services/api/auth": ["packages/services/api/auth/src/index.ts"],
       "@migrasi/services/api/project": [
-        "packages/services/src/api/project/src/index.ts"
+        "packages/services/api/project/src/index.ts"
+      ],
+      "@migrasi/services/api/user": ["packages/services/api/user/src/index.ts"],
+      "@migrasi/services/cli/login": [
+        "packages/services/cli/login/src/index.ts"
+      ],
+      "@migrasi/services/cli/setup": [
+        "packages/services/cli/setup/src/index.ts"
       ],
       "@migrasi/shared/bridges/email": [
-        "packages/shared/bridges/email/index.ts"
+        "packages/shared/bridges/email/src/index.ts"
       ],
       "@migrasi/shared/config": ["packages/shared/config/index.ts"],
       "@migrasi/shared/database": ["packages/shared/database/index.ts"],
       "@migrasi/shared/entities": ["packages/shared/entities/index.ts"],
       "@migrasi/shared/errors": ["packages/shared/errors/index.ts"],
+      "@migrasi/shared/trpc/*": ["packages/shared/trpc/src/*"],
       "@migrasi/shared/utils": ["packages/shared/utils/src/index.ts"],
-
       "@migrasi/third-parties/email": ["packages/third-parties/email/index.ts"]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": ["node_modules", "tmp", "dist"]
 }

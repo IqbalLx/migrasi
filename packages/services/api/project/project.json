@@ -1,0 +1,42 @@
+{
+  "name": "services-api-project",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/services/api/project/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/services/api/project",
+        "main": "packages/services/api/project/src/index.ts",
+        "tsConfig": "packages/services/api/project/tsconfig.lib.json",
+        "assets": ["packages/services/api/project/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/services/api/project/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/services/api/project/jest.config.ts",
+        "passWithNoTests": true,
+        "runInBand": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true,
+          "runInBand": true
+        }
+      }
+    }
+  },
+  "tags": []
+}
