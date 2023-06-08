@@ -1,1 +1,5 @@
-export * from './lib/cli';
+import { cli } from './lib/cli';
+
+(async () => {
+  await cli();
+})();

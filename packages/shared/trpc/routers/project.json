@@ -1,0 +1,26 @@
+{
+  "name": "shared-trpc-routers",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/shared/trpc/routers/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/shared/trpc/routers",
+        "main": "packages/shared/trpc/routers/src/index.ts",
+        "tsConfig": "packages/shared/trpc/routers/tsconfig.lib.json",
+        "assets": ["packages/shared/trpc/routers/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/shared/trpc/routers/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

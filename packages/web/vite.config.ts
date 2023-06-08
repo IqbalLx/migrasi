@@ -17,8 +17,8 @@ export default defineConfig({
 		fs: {
 			allow: [searchForWorkspaceRoot(process.cwd()), 'shared/trpc']
 		}
-	},
-	optimizeDeps: {
-		exclude: ['pg']
 	}
+	// ssr: {
+	// 	noExternal: ['pg']
+	// }
 });

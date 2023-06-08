@@ -1,5 +1,5 @@
 {
-  "name": "@migrasi/shared/trpc",
+  "name": "@migrasi/shared/trpc/root",
   "version": "0.0.1",
   "type": "commonjs"
 }

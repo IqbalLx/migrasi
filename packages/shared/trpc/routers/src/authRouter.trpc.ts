@@ -1,15 +1,15 @@
 import { UserLogin } from '@migrasi/shared/entities';
-import { t } from './root.trpc';
+import { t } from '@migrasi/shared/trpc/root';
 
 import { authService } from '@migrasi/services/api/auth';
 import { HTTPException } from '@migrasi/shared/errors';
-import { toTRPCError } from '../utils/trpc.util';
+import { toTRPCError } from '@migrasi/shared/trpc/utils';
 import { TRPCError } from '@trpc/server';
 import {
   protectedCliProcedure,
   protectedWebProcedure,
   unprotectedProcedure,
-} from '../middlewares';
+} from '@migrasi/shared/trpc/middlewares';
 
 export const authRouter = t.router({
   greeting: unprotectedProcedure.query(() => {

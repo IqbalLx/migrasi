@@ -1,9 +1,9 @@
 import { TRPCError } from '@trpc/server';
 
-import { t } from '../routers/root.trpc';
+import { t } from '@migrasi/shared/trpc/root';
 import { Context } from '@migrasi/shared/entities';
 import { authService } from '@migrasi/services/api/auth';
-import { toTRPCError } from '../utils/trpc.util';
+import { toTRPCError } from '@migrasi/shared/trpc/utils';
 import { HTTPException } from '@migrasi/shared/errors';
 
 function getProtectionMiddleware(forType: 'web' | 'cli') {

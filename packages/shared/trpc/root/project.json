@@ -1,24 +1,24 @@
 {
-  "name": "shared-trpc",
+  "name": "shared-trpc-root",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/shared/trpc/src",
+  "sourceRoot": "packages/shared/trpc/root/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/shared/trpc",
-        "main": "packages/shared/trpc/src/index.ts",
-        "tsConfig": "packages/shared/trpc/tsconfig.lib.json",
-        "assets": ["packages/shared/trpc/*.md"]
+        "outputPath": "dist/packages/shared/trpc/root",
+        "main": "packages/shared/trpc/root/src/index.ts",
+        "tsConfig": "packages/shared/trpc/root/tsconfig.lib.json",
+        "assets": ["packages/shared/trpc/root/*.md"]
       }
     },
     "lint": {
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/shared/trpc/**/*.ts"]
+        "lintFilePatterns": ["packages/shared/trpc/root/**/*.ts"]
       }
     }
   },

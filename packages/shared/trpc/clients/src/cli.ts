@@ -1,5 +1,5 @@
 import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
-import type { Router } from '../routers';
+import type { Router } from '@migrasi/shared/trpc/routers';
 
 import { Config } from '@migrasi/shared/config';
 

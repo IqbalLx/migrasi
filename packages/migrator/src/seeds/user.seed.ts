@@ -3,7 +3,7 @@ import { Tables } from '@migrasi/shared/database';
 
 import { faker } from '@faker-js/faker';
 
-import { hash } from 'bcrypt';
+import { hash } from 'bcryptjs';
 
 export const fakeUserIds = [
   '20e81ec4-477e-4047-900d-355c49e53932',

@@ -34,7 +34,16 @@
       "@migrasi/shared/database": ["packages/shared/database/index.ts"],
       "@migrasi/shared/entities": ["packages/shared/entities/index.ts"],
       "@migrasi/shared/errors": ["packages/shared/errors/index.ts"],
-      "@migrasi/shared/trpc/*": ["packages/shared/trpc/src/*"],
+      "@migrasi/shared/trpc/clients/*": ["packages/shared/trpc/clients/src/*"],
+      "@migrasi/shared/trpc/context": ["packages/shared/trpc/context/src"],
+      "@migrasi/shared/trpc/middlewares": [
+        "packages/shared/trpc/middlewares/src"
+      ],
+      "@migrasi/shared/trpc/routers": [
+        "packages/shared/trpc/routers/src/index.ts"
+      ],
+      "@migrasi/shared/trpc/root": ["packages/shared/trpc/root/src/index.ts"],
+      "@migrasi/shared/trpc/utils": ["packages/shared/trpc/utils/src/index.ts"],
       "@migrasi/shared/utils": ["packages/shared/utils/src/index.ts"],
       "@migrasi/third-parties/email": ["packages/third-parties/email/index.ts"]
     }

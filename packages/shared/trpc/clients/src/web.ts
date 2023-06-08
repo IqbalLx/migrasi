@@ -1,4 +1,4 @@
-import type { Router } from '../routers';
+import type { Router } from '@migrasi/shared/trpc/routers';
 import { createTRPCClient, type TRPCClientInit } from 'trpc-sveltekit';
 
 let browserClient: ReturnType<typeof createTRPCClient<Router>>;
