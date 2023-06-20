@@ -10,7 +10,7 @@ import {
 
 import { type EmailBridge } from '@migrasi/shared/bridges/email';
 
-import { Debug, toUnixInSeconds } from '@migrasi/shared/utils';
+import { toUnixInSeconds } from '@migrasi/shared/utils';
 
 import {
   GeneratedCookie,
@@ -121,7 +121,6 @@ export class AuthService implements IAuthService {
     return this.generateCookie(user.id);
   }
 
-  @Debug
   async cliLogin(userLogin: UserLogin): Promise<GeneratedCookie> {
     const user = await this.authValidator.validateByEmail(userLogin.email);
 

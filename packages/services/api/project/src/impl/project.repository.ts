@@ -3,6 +3,7 @@ import { Tables, getPaginationMeta, paginate } from '@migrasi/shared/database';
 
 import { IProjectRepository } from '../project.interface';
 import {
+  ListProjectDPO,
   NewProjectMigration,
   PaginationMeta,
   Project,
@@ -38,6 +39,24 @@ export class ProjectRepository implements IProjectRepository {
     });
 
     return;
+  }
+
+  getAllProjects(userId: string): Promise<ListProjectDPO> {
+    return this.db
+      .selectFrom('project_members as pm')
+      .innerJoin('projects as p', 'pm.project_id', 'p.id')
+      .where('pm.member_id', '=', userId)
+      .select([
+        'p.id',
+        'p.name',
+        'p.slug',
+        sql<boolean>`
+          CASE WHEN pm.member_id = p.author_id 
+          THEN true 
+          ELSE false 
+          END`.as('is_author'),
+      ])
+      .execute();
   }
 
   async getProject(

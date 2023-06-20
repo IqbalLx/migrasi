@@ -24,6 +24,9 @@
       "@migrasi/services/cli/login": [
         "packages/services/cli/login/src/index.ts"
       ],
+      "@migrasi/services/cli/logout": [
+        "packages/services/cli/logout/src/index.ts"
+      ],
       "@migrasi/services/cli/setup": [
         "packages/services/cli/setup/src/index.ts"
       ],
@@ -39,10 +42,10 @@
       "@migrasi/shared/trpc/middlewares": [
         "packages/shared/trpc/middlewares/src"
       ],
+      "@migrasi/shared/trpc/root": ["packages/shared/trpc/root/src/index.ts"],
       "@migrasi/shared/trpc/routers": [
         "packages/shared/trpc/routers/src/index.ts"
       ],
-      "@migrasi/shared/trpc/root": ["packages/shared/trpc/root/src/index.ts"],
       "@migrasi/shared/trpc/utils": ["packages/shared/trpc/utils/src/index.ts"],
       "@migrasi/shared/utils": ["packages/shared/utils/src/index.ts"],
       "@migrasi/third-parties/email": ["packages/third-parties/email/index.ts"]

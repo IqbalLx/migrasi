@@ -1,5 +1,5 @@
 {
-  "name": "@migrasi/services/src/api/project",
+  "name": "@migrasi/services/api/project",
   "version": "0.0.1",
   "type": "commonjs"
 }

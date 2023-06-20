@@ -9,16 +9,9 @@ import { HTTPException } from '@migrasi/shared/errors';
 function getProtectionMiddleware(forType: 'web' | 'cli') {
   return t.middleware(async (opts) => {
     const { ctx } = opts;
-    const authHeaderValue = ctx.token;
+    const token = ctx.token;
 
-    if (authHeaderValue === undefined)
-      throw new TRPCError({
-        code: 'UNAUTHORIZED',
-        message: 'auth failed',
-      });
-
-    const token = authHeaderValue?.split(' ')[1];
-    if (token === undefined)
+    if (token === null)
       throw new TRPCError({
         code: 'UNAUTHORIZED',
         message: 'auth failed',

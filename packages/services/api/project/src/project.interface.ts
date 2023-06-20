@@ -1,5 +1,6 @@
 import {
   Context,
+  ListProjectDPO,
   MemberToAddDPO,
   NewMembers,
   NewProject,
@@ -24,6 +25,7 @@ export interface IProjectService {
     context: Context,
     newProject: NewProject
   ): Promise<Pick<Project, 'slug'>>;
+  getAllProjects(context: Context): Promise<ListProjectDPO>;
   getProjectDetail(context: Context, projectId: string): Promise<ProjectDPO>;
   deleteProject(context: Context, projectId: string): Promise<void>;
 
@@ -84,6 +86,7 @@ export interface IProjectService {
 export interface IProjectRepository {
   // projects
   createProject(newProject: WithoutTableDefault<Project>): Promise<void>;
+  getAllProjects(userId: string): Promise<ListProjectDPO>;
   getProject(
     projectIdOrSlug: string
   ): Promise<[project: Project, author: User] | undefined>;

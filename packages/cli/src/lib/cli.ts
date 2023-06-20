@@ -1,19 +1,24 @@
+import { ArgumentParser, NoContextHelp, NoHelp } from 'typed-cmdargs';
+
 import { trpc } from '@migrasi/shared/trpc/clients/cli';
 
-import { login } from '@migrasi/services/cli/login';
+import { Login } from '@migrasi/services/cli/login';
+import { Logout } from '@migrasi/services/cli/logout';
+import { Setup } from '@migrasi/services/cli/setup';
 
-export async function cli() {
-  const command = process.argv[2];
-  if (command === undefined) throw Error('no command provided');
-
-  switch (command) {
-    case 'login':
-      await login(trpc);
-      break;
-
-    default:
-      break;
-  }
-
-  process.exit(0);
-}
+export const argParser = new ArgumentParser(new NoHelp(), new NoContextHelp())
+  .push('login', {
+    desc: 'Login to your migrasi account',
+    construct: () => new Login(trpc),
+    flags: {},
+  })
+  .push('logout', {
+    desc: 'Logout from your current session',
+    construct: () => new Logout(trpc),
+    flags: {},
+  })
+  .push('setup', {
+    desc: 'Setup migrasi config in your workspace',
+    construct: () => new Setup(trpc),
+    flags: {},
+  });

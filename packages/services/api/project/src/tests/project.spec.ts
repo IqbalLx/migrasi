@@ -1,5 +1,10 @@
 import { authService } from '@migrasi/services/api/auth';
-import { Context, NewProject, ProjectDPO } from '@migrasi/shared/entities';
+import {
+  Context,
+  ListProjectDPO,
+  NewProject,
+  ProjectDPO,
+} from '@migrasi/shared/entities';
 
 import { projectService } from '..';
 import { getDB } from '@migrasi/shared/database';
@@ -75,6 +80,26 @@ describe('Project Domain', () => {
     await expect(
       projectService.createProject(context, newProject)
     ).resolves.not.toThrowError();
+  });
+
+  it('should success retrieve all projects -- author test', async () => {
+    const projects = await projectService.getAllProjects(context);
+
+    expect(projects.length).toBeGreaterThanOrEqual(1);
+    expect(projects.every((p) => p.is_author)).toBe(true);
+
+    const validate = ListProjectDPO.safeParse(projects);
+    expect(validate.success).toBe(true);
+  });
+
+  it('should success retrieve all projects -- member test', async () => {
+    const projects = await projectService.getAllProjects(contextUser5);
+
+    expect(projects.length).toBeGreaterThanOrEqual(1);
+    expect(projects.every((p) => p.is_author)).toBe(false);
+
+    const validate = ListProjectDPO.safeParse(projects);
+    expect(validate.success).toBe(true);
   });
 
   it('should success get detail of project -- author test', async () => {

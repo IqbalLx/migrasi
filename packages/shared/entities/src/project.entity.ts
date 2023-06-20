@@ -31,11 +31,23 @@ export const ProjectDPO = Project.omit({ author_id: true, slug: true }).merge(
     migrations: PaginatedProjectMigrationDPO,
   })
 );
+export const ListProjectDPO = z.array(
+  omitTimestamp(
+    Project.omit({
+      author_id: true,
+    }).merge(
+      z.object({
+        is_author: z.boolean(),
+      })
+    )
+  )
+);
 
 export type Project = z.infer<typeof Project>;
 export type NewProject = z.infer<typeof NewProject>;
 export type UpdatedProject = z.infer<typeof UpdatedProject>;
 export type ProjectDPO = z.infer<typeof ProjectDPO>;
+export type ListProjectDPO = z.infer<typeof ListProjectDPO>;
 
 export type ProjectTable = KyselyTableDefault & z.infer<typeof ProjectEntity>;
 

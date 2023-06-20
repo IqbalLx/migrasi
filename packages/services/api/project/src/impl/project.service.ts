@@ -1,5 +1,6 @@
 import {
   Context,
+  ListProjectDPO,
   MemberToAddDPO,
   NewMembers,
   NewProject,
@@ -51,6 +52,10 @@ export class ProjectService implements IProjectService {
     });
 
     return { slug };
+  }
+
+  getAllProjects(context: Context): Promise<ListProjectDPO> {
+    return this.projectRepo.getAllProjects(context.user_id);
   }
 
   async getProjectDetail(
