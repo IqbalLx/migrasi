@@ -1,7 +1,7 @@
 import type { TRPC } from '@migrasi/shared/trpc/clients/cli';
 import { Config } from '@migrasi/shared/config';
 import { stringify } from 'yaml';
-import { checkFileExists } from '@migrasi/shared/utils';
+import { checkFileExists, checkFolderExists } from '@migrasi/shared/utils';
 import { mkdir, writeFile } from 'fs/promises';
 
 import { bgRed, bgGreen } from 'chalk';
@@ -59,8 +59,8 @@ export class Login implements Command {
     }
 
     const CLI_CONFIG_PATH = `${Config.cli.basedir}/${Config.cli.configName}`;
-    const configExists = await checkFileExists(CLI_CONFIG_PATH);
-    if (!configExists) await mkdir(Config.cli.basedir);
+    const configFolderExists = await checkFolderExists(Config.cli.basedir);
+    if (!configFolderExists) await mkdir(Config.cli.basedir);
 
     await writeFile(CLI_CONFIG_PATH, stringify({ token: token.value }));
 

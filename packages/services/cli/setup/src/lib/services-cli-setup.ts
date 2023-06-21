@@ -1,15 +1,15 @@
 import { ListProjectDPO } from '@migrasi/shared/entities';
 import { LoadWithMessage, type TRPC } from '@migrasi/shared/trpc/clients/cli';
 
-import { bgGreen, dim, inverse } from 'chalk';
+import { bgGreen, bgRed, dim, inverse } from 'chalk';
 import inquirer from 'inquirer';
 import { Command } from 'typed-cmdargs';
-import { writeFile } from 'fs/promises';
-import { stringify } from 'yaml';
+import { checkFolderExists } from '@migrasi/shared/utils';
+import { CLIConfig } from '@migrasi/services/cli/config';
+import { Config } from '@migrasi/services/cli/config';
 
 export class Setup implements Command {
-  private CONFIG_NAME = 'migrasi.yaml';
-  constructor(private trpc: TRPC) {}
+  constructor(private trpc: TRPC, private config: CLIConfig) {}
 
   @LoadWithMessage('Fetching your projects ...')
   private async fetchProject(): Promise<ListProjectDPO> {
@@ -50,19 +50,40 @@ export class Setup implements Command {
     return selectedProject;
   }
 
+  private async askMigrationFolder() {
+    const answer = await inquirer.prompt<{ migrationFolder: string }>({
+      name: 'migrationFolder',
+      type: 'input',
+      message: 'Type your migration folder, relative to your current workspace',
+      default: 'packages/migrator/src/migrations/src',
+    });
+
+    const isExists = await checkFolderExists(
+      `${process.cwd()}/${answer.migrationFolder}`
+    );
+    if (!isExists) {
+      console.log(bgRed('Folder not found'));
+      process.exit(1);
+    }
+
+    return answer.migrationFolder;
+  }
+
   async execute(): Promise<void> {
     const projects = await this.fetchProject();
     const selectedProject = await this.askSelectProject(projects);
+    const selectedMigrationFolder = await this.askMigrationFolder();
 
-    const WORKSPACE_CONFIG_PATH = `${process.cwd()}/${this.CONFIG_NAME}`;
-    await writeFile(
-      WORKSPACE_CONFIG_PATH,
-      stringify({
+    const workspaceConfig: Config = {
+      project: {
         id: selectedProject.id,
         slug: selectedProject.slug,
         name: selectedProject.name,
-      })
-    );
+      },
+      migration_folder: selectedMigrationFolder,
+    };
+
+    await this.config.writeConfig(workspaceConfig);
 
     console.log(
       `${bgGreen('setup completed')}. You can now try to run ${inverse(

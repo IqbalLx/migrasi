@@ -2,9 +2,13 @@ import { ArgumentParser, NoContextHelp, NoHelp } from 'typed-cmdargs';
 
 import { trpc } from '@migrasi/shared/trpc/clients/cli';
 
+import { CLIConfig } from '@migrasi/services/cli/config';
 import { Login } from '@migrasi/services/cli/login';
 import { Logout } from '@migrasi/services/cli/logout';
 import { Setup } from '@migrasi/services/cli/setup';
+import { Create } from '@migrasi/services/cli/create';
+
+const cliConfig = new CLIConfig();
 
 export const argParser = new ArgumentParser(new NoHelp(), new NoContextHelp())
   .push('login', {
@@ -19,6 +23,12 @@ export const argParser = new ArgumentParser(new NoHelp(), new NoContextHelp())
   })
   .push('setup', {
     desc: 'Setup migrasi config in your workspace',
-    construct: () => new Setup(trpc),
+    construct: () => new Setup(trpc, cliConfig),
+    flags: {},
+  })
+  .push('create', {
+    desc: 'Create new migration file',
+    arg: 'filename',
+    construct: (filename) => new Create(trpc, cliConfig, filename),
     flags: {},
   });
