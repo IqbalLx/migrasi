@@ -7,6 +7,7 @@ import { Login } from '@migrasi/services/cli/login';
 import { Logout } from '@migrasi/services/cli/logout';
 import { Setup } from '@migrasi/services/cli/setup';
 import { Create } from '@migrasi/services/cli/create';
+import { Check } from '@migrasi/services/cli/check';
 
 const cliConfig = new CLIConfig();
 
@@ -31,4 +32,16 @@ export const argParser = new ArgumentParser(new NoHelp(), new NoContextHelp())
     arg: 'filename',
     construct: (filename) => new Create(trpc, cliConfig, filename),
     flags: {},
+  })
+  .push('check', {
+    desc: 'Compare local migration with remote',
+    construct: (_, params) => new Check(trpc, cliConfig, params),
+    flags: {
+      validate: {
+        short: 'v',
+        desc: 'If enabled return non-zero exit code when there is difference between local and remote. Suitable for CI environment',
+        overrideValue: true,
+        defaultValue: false,
+      },
+    },
   });

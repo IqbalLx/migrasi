@@ -126,12 +126,12 @@ describe('Project Migration Domain', () => {
     const projectMigrationSequenceOrder = projectMigrations.map(
       (pm) => pm.sequence
     );
-    const projectMigrationSequenceDescOrder = [
+    const projectMigrationSequenceAscOrder = [
       ...projectMigrationSequenceOrder,
-    ].sort((a, b) => b - a);
+    ].sort();
 
     expect(projectMigrationSequenceOrder).toEqual(
-      projectMigrationSequenceDescOrder
+      projectMigrationSequenceAscOrder
     );
 
     expect(projectMigrations.every((mi) => mi.deleted_at === null)).toBe(true);

@@ -252,6 +252,7 @@ export class ProjectService implements IProjectService {
     const migrations = await this.projectRepo.getMigrations(project.id, {
       page: 1,
       size: -1,
+      sort: 'asc',
     });
 
     return migrations.map((migration) =>

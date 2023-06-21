@@ -27,6 +27,34 @@ export const projectRouter = t.router({
       throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
     }
   }),
+  getAllProjectMigrations: protectedCliProcedure
+    .input(
+      z.object({
+        projectIdOrSlug: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      try {
+        const projectMigrations = await projectService.getAllProjectMigrations(
+          ctx,
+          input.projectIdOrSlug
+        );
+
+        return projectMigrations;
+      } catch (error) {
+        console.error(error);
+
+        if (error instanceof HTTPException) {
+          const trpcErr = toTRPCError(error);
+          console.debug(trpcErr, 'trpc err');
+
+          throw trpcErr;
+        }
+
+        console.error(error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      }
+    }),
   createMigration: protectedCliProcedure
     .input(
       z.object({

@@ -14,18 +14,6 @@ export class Create implements Command {
     private filename: string
   ) {}
 
-  private async loadConfig() {
-    const config = await this.cliConfig.readConfig();
-    if (config === undefined) {
-      console.log(
-        `${bgRed('Config not found')} run ${inverse('migrasi setup')} first`
-      );
-      process.exit(1);
-    }
-
-    this.config = config;
-  }
-
   @LoadWithMessage('Creating new migration ... ')
   private async createMigration() {
     const generatedFilename = await this.trpc.project.createMigration.mutate({
@@ -37,12 +25,11 @@ export class Create implements Command {
   }
 
   async execute(): Promise<void> {
-    await this.loadConfig();
+    this.config = await this.cliConfig.readConfig();
 
     const generatedFilename = await this.createMigration();
     const generatedFilenameWithExt = `${generatedFilename}.ts`;
     const newMigrationPath = join(
-      process.cwd(),
       this.config.migration_folder,
       generatedFilenameWithExt
     );

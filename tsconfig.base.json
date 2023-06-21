@@ -21,6 +21,9 @@
         "packages/services/api/project/src/index.ts"
       ],
       "@migrasi/services/api/user": ["packages/services/api/user/src/index.ts"],
+      "@migrasi/services/cli/check": [
+        "packages/services/cli/check/src/index.ts"
+      ],
       "@migrasi/services/cli/config": [
         "packages/services/cli/config/src/index.ts"
       ],
