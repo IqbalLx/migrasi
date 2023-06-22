@@ -114,6 +114,36 @@ export const projectRouter = t.router({
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
       }
     }),
+  deleteMigration: protectedCliProcedure
+    .input(
+      z.object({
+        projectSlugOrId: z.string(),
+        filename: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await projectService.deleteProjectMigration(
+          ctx,
+          input.projectSlugOrId,
+          input.filename
+        );
+
+        return;
+      } catch (error) {
+        console.error(error);
+
+        if (error instanceof HTTPException) {
+          const trpcErr = toTRPCError(error);
+          console.debug(trpcErr, 'trpc err');
+
+          throw trpcErr;
+        }
+
+        console.error(error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      }
+    }),
 });
 
 export type ProjectRouter = typeof projectRouter;

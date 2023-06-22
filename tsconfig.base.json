@@ -30,6 +30,9 @@
       "@migrasi/services/cli/create": [
         "packages/services/cli/create/src/index.ts"
       ],
+      "@migrasi/services/cli/delete": [
+        "packages/services/cli/delete/src/index.ts"
+      ],
       "@migrasi/services/cli/login": [
         "packages/services/cli/login/src/index.ts"
       ],

@@ -13,6 +13,7 @@ import {
   CurrentFilenameFlag,
   UpdateFilenameFlag,
 } from '@migrasi/services/cli/rename';
+import { Delete } from '@migrasi/services/cli/delete';
 
 const cliConfig = new CLIConfig();
 
@@ -67,6 +68,18 @@ export const argParser = new ArgumentParser(new NoHelp(), new NoContextHelp())
         desc: 'Specify new name for migration',
         overrideValue: (arg) => new UpdateFilenameFlag(arg),
         defaultValue: new UpdateFilenameFlag(undefined),
+      },
+    },
+  })
+  .push('delete', {
+    desc: 'Delete migration',
+    construct: (_, params) => new Delete(trpc, cliConfig, params),
+    flags: {
+      yes: {
+        short: 'y',
+        desc: 'Skip confirmation for deleting confirmation file',
+        overrideValue: true,
+        defaultValue: false,
       },
     },
   });
