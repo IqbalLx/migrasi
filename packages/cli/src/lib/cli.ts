@@ -77,7 +77,7 @@ export const argParser = new ArgumentParser(new NoHelp(), new NoContextHelp())
     flags: {
       yes: {
         short: 'y',
-        desc: 'Skip confirmation for deleting confirmation file',
+        desc: 'Skip confirmation for deleting migration file',
         overrideValue: true,
         defaultValue: false,
       },
