@@ -36,6 +36,9 @@
       "@migrasi/services/cli/logout": [
         "packages/services/cli/logout/src/index.ts"
       ],
+      "@migrasi/services/cli/rename": [
+        "packages/services/cli/rename/src/index.ts"
+      ],
       "@migrasi/services/cli/setup": [
         "packages/services/cli/setup/src/index.ts"
       ],

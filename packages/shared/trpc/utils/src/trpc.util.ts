@@ -13,7 +13,10 @@ export function toTRPCError(error: HTTPException): TRPCError {
     });
 
   return new TRPCError({
-    code: httpException.reason.toUpperCase() as TRPC_ERROR_CODE_KEY,
+    code: httpException.reason
+      .toUpperCase()
+      .split(' ')
+      .join('_') as TRPC_ERROR_CODE_KEY,
     message: httpException.message,
   });
 }

@@ -8,6 +8,11 @@ import { Logout } from '@migrasi/services/cli/logout';
 import { Setup } from '@migrasi/services/cli/setup';
 import { Create } from '@migrasi/services/cli/create';
 import { Check } from '@migrasi/services/cli/check';
+import {
+  Rename,
+  CurrentFilenameFlag,
+  UpdateFilenameFlag,
+} from '@migrasi/services/cli/rename';
 
 const cliConfig = new CLIConfig();
 
@@ -42,6 +47,26 @@ export const argParser = new ArgumentParser(new NoHelp(), new NoContextHelp())
         desc: 'If enabled return non-zero exit code when there is difference between local and remote. Suitable for CI environment',
         overrideValue: true,
         defaultValue: false,
+      },
+    },
+  })
+  .push('rename', {
+    desc: 'Rename your migration filename',
+    construct: (_, params) => new Rename(trpc, cliConfig, params),
+    flags: {
+      from: {
+        short: 'f',
+        arg: 'filename',
+        desc: 'Specify which current migration filename to be renamed',
+        overrideValue: (arg) => new CurrentFilenameFlag(cliConfig, arg),
+        defaultValue: new CurrentFilenameFlag(cliConfig, undefined),
+      },
+      to: {
+        short: 't',
+        arg: 'filename',
+        desc: 'Specify new name for migration',
+        overrideValue: (arg) => new UpdateFilenameFlag(arg),
+        defaultValue: new UpdateFilenameFlag(undefined),
       },
     },
   });

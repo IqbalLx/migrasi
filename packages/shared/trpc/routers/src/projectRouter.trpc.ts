@@ -6,6 +6,7 @@ import { HTTPException } from '@migrasi/shared/errors';
 import { toTRPCError } from '@migrasi/shared/trpc/utils';
 import { TRPCError } from '@trpc/server';
 import { protectedCliProcedure } from '@migrasi/shared/trpc/middlewares';
+import { UpdateProjectMigrationDTO } from '@migrasi/shared/entities';
 
 export const projectRouter = t.router({
   getAllProjects: protectedCliProcedure.query(async ({ ctx }) => {
@@ -71,6 +72,34 @@ export const projectRouter = t.router({
         );
 
         return generatedFilename;
+      } catch (error) {
+        console.error(error);
+
+        if (error instanceof HTTPException) {
+          const trpcErr = toTRPCError(error);
+          console.debug(trpcErr, 'trpc err');
+
+          throw trpcErr;
+        }
+
+        console.error(error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      }
+    }),
+  updateMigration: protectedCliProcedure
+    .input(
+      UpdateProjectMigrationDTO.merge(
+        z.object({
+          projectIdOrSlug: z.string(),
+        })
+      )
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { projectIdOrSlug, ...updateDTO } = input;
+        await projectService.updateMigration(ctx, projectIdOrSlug, updateDTO);
+
+        return;
       } catch (error) {
         console.error(error);
 
