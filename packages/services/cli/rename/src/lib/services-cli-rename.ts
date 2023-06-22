@@ -63,8 +63,12 @@ export class CurrentFilenameFlag implements FilenameFlagHelper {
   async getFilename(): Promise<string> {
     this.config = await this.cliConfig.readConfig();
 
-    if (this.value !== undefined)
+    if (this.value !== undefined) {
+      const isWithExt = this.value.endsWith('.ts');
+      if (!isWithExt) return this.validateAndReturnFilename(`${this.value}.ts`);
+
       return this.validateAndReturnFilename(this.value);
+    }
 
     const localMigrations = await this.loadLocalMigrations();
     const value = await this.askCurrentMigration(localMigrations);
